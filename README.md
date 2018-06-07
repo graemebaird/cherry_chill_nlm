@@ -1,7 +1,7 @@
 ### Introduction
 This collection of scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. Required libraries are called in `Total_runfile.R` to be consolidated. Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~1GB model fits which will require storage). 
 
-The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data is in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 in the paper and figures associated with the paper are in `docs/`.
+The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 in the paper and figures associated with the paper are in `docs/`.
 
 ### Data cleanup
 To keep data provenance, the steps of data cleanup are described here and can be found in `codefiles/Data_preparation.R`. First, the original budburst data collection excel file is collated into a single data frame including all varieties and some summary statistics are calculated and exported for data exploration purposes. Second, the weather station and HOBO datalogger datafiles are collated into a single data frame and matched with budburst observation dates to provide start-to-end temperature vectors for each budburst observation. These vectors are then converted to Growing Degree Hours and Chilling Portions and matched with each observation for later input into the model. Twig-based observations are melted into long-form and each bud observation is associated with an individual row.
@@ -14,20 +14,20 @@ In the sampling segment of `Fit_models.R`, the script iterates through each vari
 ```
   for (n in 1:N) { 
     mu_alpha[n] = mu_alpha[n] + (r_1_alpha_1[J_1[n]]) * Z_1_alpha_1[n] + (r_2_alpha_1[J_2[n]])               * Z_2_alpha_1[n]; 
-    mu[n] = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta[n] - C_2[n]*mu_eta[n])));
+    mu[n] = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta - C_2[n]*mu_eta)));
     target += ordered_logistic_lpmf(Y[n] | mu[n], temp_Intercept);
   } 
 ```
 
-Where `mu_alpha` is a global parameter with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation. Because the `ordered_logistic_lpmf` log probability mass function does not support vector inputs, this script cannot be vectorized to calculate the entire dataset in batch, and instead iterates over each row `n` in the data. 
+Where `mu_alpha` is a global parameter with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation, a function of `alpha` `beta` `eta` heat and chill. Because the `ordered_logistic_lpmf` log probability mass function does not support vector inputs, this script cannot be vectorized to calculate the entire dataset in batch, and instead iterates over each row `n` in the data for each iteration in the MCMC run. 
 
 The posterior distribution (Yhat) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
 
 ```
   for (n in 1:N) { 
-    mu[n] = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta[n] - C_2[n]*mu_eta[n])));
-    Yrep[n] = ordered_logistic_rng(mu[n], temp_Intercept);
-    Ysat[n] = -(mu_beta[n] - 2.292432)/mu_eta[n];
+    mu[n] = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta - C_2[n]*mu_eta)));
+    Yrep = ordered_logistic_rng(mu[n], temp_Intercept);
+    Ysat = -(mu_beta[n] - 2.292432)/mu_eta[n];
   } 
 ```
 
@@ -35,12 +35,12 @@ also in the generated quantities block are posterior predictions over a range of
 
 ```
   for (n in 1:N_Y) { 
-    mu_rep[n] = GDH_Y[n] * (mu_alpha[n] / (1 + exp(-mu_beta[n] - CP_Y[n]*mu_eta[n])));
-    Yhat[n] = ordered_logistic_rng(mu[n], temp_Intercept);
+    mu_rep[n] = GDH_Y[n] * (mu_alpha[n] / (1 + exp(-mu_beta - CP_Y[n]*mu_eta)));
+    Yhat = ordered_logistic_rng(mu[n], temp_Intercept);
   } 
 ```
 
-Model fits are not included in this repository as at 2000 iterations each variety's stanfit file is >900MB.
+Model fits are not included in this repository as at 2000 iterations each variety's stanfit file is >400MB.
 
 ### Model diagnostics
 Model diagnostics were performed using the `shinystan` tool, available by running the function `shinystan::launch_shinystan()` on any saved modelfit generated by `Fit_models.R`. R-hat values, chain diagnostics, and divergence information are available, as well as tools for examining and verifying posterior distribution shapes. 
@@ -54,5 +54,5 @@ Figures are generated using the following script files:
 
 `Raw_posterior_activity_plotter.R`, a plot which visualizes the raw data for bud activity, 50% threshold, and NLM saturation thresholds. 
 
-The main processor bottleneck for these figure-generating function is loading large stanfits into memory and extracting samples - posterior predictive samples are already present in these files and do not need to be generated.
+The main processor bottleneck for these figure-generating function is loading stanfits into memory and extracting samples - posterior predictive samples are already present in these files and do not need to be generated.
 
