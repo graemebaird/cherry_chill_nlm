@@ -1,0 +1,183 @@
+---
+title: "Model details"
+author: "Graeme Baird"
+date: "5/24/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(rethinking)
+library(cowplot)
+```
+
+### Underlying model details
+
+In this paper we present an extension of a cumulative link ordinal regression model to include nonlinear effects, briefly described below. 
+
+The highest level of the model is a multinomial distribution mapping the ordinal bud-state outcomes [dormant 0; greentip 1; leaf-out 2] to categorical probabilities. For convenience we follow the model formulation by McKinley CITE, rephrased for this dataset, though other formulations of the cumulative link model have been well-described in frequentist and Bayesian contexts elsewhere. Set $Y_{ij}$ in ($Y_{i1}, Y_{i2}, Y_{i3}$) to be the ordinal group j for any observation i, $n_i$ the individual observed bud, and $\textbf{p}_i$ to be the vector of probabilities of occupying group j, yielding the unordered multinomial distribution
+
+$Y \sim Mult(n_i,\textbf{p}_i)$
+
+where $\textbf{p}_i$ = ($p_{i1}, p_{i2}, p_{i3}$). Coercing this distribution to an ordered form can be accomplished by linking the cumulative probability for each outcome $i$ occupying any group $j$ to a continuous variable $\gamma_{ij}$ via the monotonic increasing link function
+
+$h(\gamma_{ij}) = \theta_j - \mu_i$
+
+where $\theta_j$ is a set of cut-points (in this dataset, 2 cut-points) and $\mu_i$ is a regression term. In this case $\gamma$ serves as a convenient representation of the continuous underlying biological development process as each bud moves through the observed phenological stages. A link to chill and heat accumulation is assumed via
+
+$\mu_i = GDH_i * f(CP,\theta)$
+
+where $GDH_i$ is the accumulated growing degree hours at observation $i$ and $f(CP,\theta)$ is any nonlinear function on chilling portions and parameters $\theta$. In this case we use the standard logistic function
+
+$f(CP,\theta) = f(CP, \alpha, \beta, \eta) = \alpha * (1 + exp(\beta - \eta*CP))^{-1}$
+
+where $\alpha$ is the asymptote, $\beta$ is the location, and $\eta$ is the scale parameter. 
+
+This model assigns $\theta_1$ the role of mapping the maximum potential influence of CP on the growth curve of buds, and the ceiling rate of responsivity to GDH (at saturation CP, the formula approaches $\mu = GDH*\alpha$). The location ($\beta$) and rapidity ($\eta$) values define the transition between zones of small effect (insufficient chilling, with minimal effect of additional units), strong effect (insufficient chilling, with rapid growth increase from additional units), and again small effect (sufficient chilling, with minimal effect of additional units). It may be the case that the first phase is unobserved, and aggregation of CP immediately affects growth, or it may be the case that below some critical level (16-26CP, for example) there is little change in vigor - this is left to the model to infer. $f(CP,\theta)$ is scaled by GDH at the point of observation, framing CP as a "responsivity" modifier of growth potential given time or heat. 
+
+Conveniently, the derivatives of the logistic equation are well-studied, and have key properties useful to us - the first differential maxima indicate the transition between periods in the high-responsivity period, second differential minima indicate the transition to a "saturation period" of growth.
+
+$f^{(4)}(CP,\theta)$ has three roots, and the third root is at the final saturation inflection of the sigmoid curve, with a closed-form analytical solution of the form
+
+$-[ln(5-2\sqrt6) + \beta]/\eta$
+
+which, in the Stan code, can be determined simultaneously in the ``generated quantities" block via
+
+`Ysat = -log(5 - 2*sqrt(6)) + mu_beta)/mu_eta`
+
+
+### Plotting response of nonlinear CP equation to changes in parameters (X:CP, Y:Coefficient output)
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+out <- 100
+
+CP <- seq(0,70,length.out=out)
+
+
+logfun <- function(CP, phi1, phi2, phi3) {
+  lout <- phi1/(1+exp((phi3 - CP)/phi2))
+  return(lout)
+}
+
+logmak <- function(CP, phi1, phi2, phi3){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logfun(CP[i], phi1, phi2, phi3)}
+  return(funout)
+}
+
+logit_pred <- function(GDH, CP, phi1, phi2, phi3) {
+  ak <- c(2,5)
+  phi <- GDH * logfun(CP, phi1, phi2, phi3);
+  storeframe <- pordlogit(1:3, a=ak, phi=phi)
+  storeframe[3] <- storeframe[3]- storeframe[2]
+  storeframe[2] <- storeframe[2] - storeframe[1]
+  return(1-storeframe[1])
+}
+
+logit_mak <- function(GDH, CP, phi1, phi2, phi3){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logit_pred(GDH[i], CP, phi1, phi2, phi3)}
+  return(funout)
+}
+
+logit_pred_gamma <- function(GDH, CP, phi1, phi2, phi3) {
+  ak <- c(2,5)
+  GDH * logfun(CP, phi1, phi2, phi3);
+}
+
+logit_mak_gamma <- function(GDH, CP, phi1, phi2, phi3){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logit_pred_gamma(GDH[i], CP, phi1, phi2, phi3)}
+  return(funout)
+}
+
+```
+
+Parameter variance within the non-linear component is best visualized by piecemeal manipulation of individual parameters, as follows. Parameter ranges demonstrated below are appropriate for un-scaled variables and don't necessarily match actual model parameter estimates, which are fit on scaled observations. 
+
+#### Changes in alpha determine asymptotic maximum possible growth rate 
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
+
+CP <- seq(0,70,length.out=100)
+GDH <- seq(0,20000,length.out=out)
+
+plot(CP, logfun(CP, 3,5,25),type="l", xlim=c(0,80), ylab="")
+text(75,3,labels="alpha = 3")
+lines(CP, logfun(CP, 2,5,25),type="l", col="red")
+text(75,2,labels="alpha = 2")
+lines(CP, logfun(CP, 1,5,25),type="l", col="blue")
+text(75,1,labels="alpha = 1")
+lines(CP, logfun(CP, .5,5,25),type="l", col="purple")
+text(75,.5,labels="alpha = .5")
+
+```
+
+#### Changes in beta determine acceleration between inflection points
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
+
+plot(CP, logfun(CP, 3,10,25),type="l", xlim=c(0,70), ylab="")
+text(8,2.5,labels="beta = 10")
+lines(CP, logfun(CP, 3,7,25),type="l", col="red")
+text(8,2,labels="beta = 7")
+lines(CP, logfun(CP, 3,4,25),type="l", col="blue")
+text(8,1.5,labels="beta = 4")
+lines(CP, logfun(CP, 3,1,25),type="l", col="purple")
+text(8,1,labels="beta = 1")
+
+```
+
+#### Changes in eta determine overall location of curve
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
+
+plot(CP, logfun(CP, 3,7,25),type="l", xlim=c(0,70), ylab="")
+text(8,2.5,labels="eta = 25")
+lines(CP, logfun(CP, 3,7,35),type="l", col="red")
+text(8,2,labels="eta = 35")
+lines(CP, logfun(CP, 3,7,45),type="l", col="blue")
+text(8,1.5,labels="eta = 45")
+lines(CP, logfun(CP, 3,7,55),type="l", col="purple")
+text(8,1,labels="eta = 55")
+
+```
+
+#### Gamma responsivity to GDH given fixed parameters and varying CP rates
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
+
+p1 <- .0005
+p2 <- 10
+p3 <- 25
+tit <- paste("alpha:", p1, "beta:", p2, "eta:", p3)
+plot(GDH, logit_mak_gamma(GDH,CP = 50, p1,p2,p3), type="l", main=tit, ylab="")
+text(18000,5,labels="CP = 50")
+lines(GDH, logit_mak_gamma(GDH,CP = 45, p1,p2,p3), type="l",  col="red")
+text(18000,4,labels="CP = 40")
+lines(GDH, logit_mak_gamma(GDH,CP = 35, p1,p2,p3), type="l",  col="blue")
+text(18000,3,labels="CP = 30")
+lines(GDH, logit_mak_gamma(GDH,CP = 25, p1,p2,p3), type="l",  col="purple")
+text(18000,2,labels="CP = 20")
+lines(GDH, logit_mak_gamma(GDH,CP = 15, p1,p2,p3), type="l",  col="grey")
+text(18000,1,labels="CP = 15")
+
+```
+
+#### Simulated budbreak responsivity (proportion in [0,1]) to GDH given fixed parameters, varying CP rates, and arbitrary cutpoints (2,5)
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
+
+p1 <- .0005
+p2 <- 10
+p3 <- 25
+tit <- paste("alpha:", p1, "beta:", p2, "eta:", p3)
+plot(GDH, logit_mak(GDH,CP = 50, p1,p2,p3), type="l", main=tit, ylab="")
+text(18000,.9,labels="CP = 50")
+lines(GDH, logit_mak(GDH,CP = 45, p1,p2,p3), type="l",  col="red")
+text(18000,.8,labels="CP = 40")
+lines(GDH, logit_mak(GDH,CP = 35, p1,p2,p3), type="l",  col="blue")
+text(18000,.7,labels="CP = 30")
+lines(GDH, logit_mak(GDH,CP = 25, p1,p2,p3), type="l",  col="purple")
+text(18000,.6,labels="CP = 20")
+lines(GDH, logit_mak(GDH,CP = 15, p1,p2,p3), type="l",  col="grey")
+text(18000,.5,labels="CP = 15")
+
+```
+
