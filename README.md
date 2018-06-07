@@ -25,7 +25,7 @@ In the sampling segment of `Fit_models.R`, the script iterates through each vari
 
 Where `mu_alpha` is a global parameter with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation, a function of `alpha` `beta` `eta` heat and chill. Because the `ordered_logistic_lpmf` log probability mass function does not support vector inputs, this script cannot be vectorized to calculate the entire dataset in batch, and instead iterates over each row `n` in the data for each iteration in the MCMC run. 
 
-The posterior distribution (Yhat) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
+The posterior predictive distribution (Yrep) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
 
 ```
   for (n in 1:N) { 
