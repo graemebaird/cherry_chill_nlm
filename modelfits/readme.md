@@ -1,0 +1,1 @@
+This directory is left empty as model fits are too large to keep on GitHub. 
