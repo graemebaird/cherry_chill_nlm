@@ -1,23 +1,23 @@
 # Import and assemble -----------------------------------------------------
 
 
-a1 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a1 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                sheet=4, startRow = 3, cols = 2:35)
-a2 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a2 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=5, startRow = 3, cols = 2:35)
-a3 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a3 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=6, startRow = 3, cols = 2:35)
-a4 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a4 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=7, startRow = 3, cols = 2:35)
-a5 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a5 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=8, startRow = 3, cols = 2:35)
-a6 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a6 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=9, startRow = 3, cols = 2:35)
-a7 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a7 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=10, startRow = 3, cols = 2:35)
-a8 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a8 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=11, startRow = 3, cols = 2:35)
-a9 <- read.xlsx("./datafiles/MEDICIONES BROTACION G.xlsx",
+a9 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
                 sheet=12, startRow = 3, cols = 2:35)
 
 d <- a1[0,1:19]
@@ -137,7 +137,7 @@ write.csv(e, file="./datafiles/Summary_stats.csv")
 
 
 
-w1 <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+w1 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=2, startRow = 10, cols = 1:12)
 ## Lapins + Kordia C
 w1 <- w1[-1:-2,]
@@ -147,7 +147,7 @@ w1$hour <- rep(c(14:23,0:13),length.out=length(w1$date))
 
 
 
-w2 <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+w2 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=3, startRow = 10, cols = 1:12)
 ## Bing
 w2 <- w2[-1:-2,]
@@ -156,7 +156,7 @@ w2$date <- as.Date(w2$X1,
 w2$hour <- rep(c(14:23,0:13),length.out=length(w2$date))
 
 
-w3 <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+w3 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=4, startRow = 10, cols = 1:12)
 ## Regina + Skeena + Kordia M
 w3 <- w3[-1:-2,]
@@ -165,7 +165,7 @@ w3$date <- as.Date(w3$X1,
 w3$hour <- rep(c(14:23,0:13),length.out=length(w3$date))
 
 
-w4 <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+w4 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=5, startRow = 10, cols = 1:12)
 ## Santina
 w4 <- w4[-1:-2,]
@@ -174,7 +174,7 @@ w4$date <- as.Date(w4$X1,
 w4$hour <- rep(c(14:23,0:13),length.out=length(w4$date))
 
 
-w5 <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+w5 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=6, startRow = 10, cols = 1:12)
 ## Sweetheart and Rainier
 w5 <- w5[-1:-2,]
@@ -184,7 +184,7 @@ w5$hour <- rep(c(14:23,0:13),length.out=length(w5$date))
 
 
 
-append_weather_f <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx", sheet=1, startRow=12, 
+append_weather_f <- read.xlsx("./datafiles/raw_weather_data.xlsx", sheet=1, startRow=12, 
                                 cols=1:2)
 append_weather_vec <- append_weather_f$`12`[725:(725+746)]
 append_weather_dates <- as.Date(append_weather_f$X1, origin = "1899-12-30")[725:(725+746)]
@@ -265,7 +265,7 @@ td_ind$cp10 <- c(rep(NA,9), 1:5)
 
 
 
-gh <- read.xlsx("./datafiles/PORCIONES DE FRIO.xlsx",
+gh <- read.xlsx("./datafiles/raw_weather_data.xlsx",
                 sheet=7, startRow = 2, cols = 2:3)
 gh$date <- as.Date(gh$Fecha,
                    origin = "1899-12-30")
