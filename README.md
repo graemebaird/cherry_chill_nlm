@@ -1,9 +1,9 @@
 ### Introduction
-This collection of scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. 
+This collection of R scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. 
 
 Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
 
-The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
+The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the R package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
 
 Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits which will require disc and memory storage). 
 
