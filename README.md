@@ -1,11 +1,11 @@
 ### Introduction
-This collection of scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. 
+This collection of R scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. 
 
 Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
 
-Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits which will require disc and memory storage). 
+The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the R package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
 
-The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
+Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits which will require disc and memory storage). 
 
 ### Data cleanup
 To keep data provenance, the steps of data cleanup are described here and can be found in `codefiles/Data_preparation.R`. First, the original budburst data collection excel file is collated into a single data frame including all varieties and some summary statistics are calculated and exported for data exploration purposes. Second, the weather station and HOBO datalogger datafiles are collated into a single data frame and matched with budburst observation dates to provide start-to-end temperature vectors for each budburst observation. These vectors are then converted to Growing Degree Hours and Chilling Portions and matched with each observation for later input into the model. Twig-based observations are melted into long-form and each bud observation is associated with an individual row.
@@ -25,7 +25,7 @@ In the sampling segment of `Fit_models.R`, the script iterates through each vari
 
 Where `mu_alpha` is a global parameter with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation, a function of `alpha` `beta` `eta` heat and chill. Because the `ordered_logistic_lpmf` log probability mass function does not support vector inputs, this script cannot be vectorized to calculate the entire dataset in batch, and instead iterates over each row `n` in the data for each iteration in the MCMC run. 
 
-The posterior distribution (Yhat) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
+The posterior predictive distribution (Yrep) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
 
 ```
   for (n in 1:N) { 
