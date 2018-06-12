@@ -1,9 +1,10 @@
 d  <- read.csv("./datafiles/Raw_combined_excel.csv") 
 varlist <- unique(d$variety)
+varlist <- varlist[varlist != "Kordia (M)"]
 
 storframe <- data.frame(variety = character(0), CP_c = numeric(0), GDH_c = numeric(0), budstate = numeric(0))
 
-for(i in 1:9) {
+for(i in 1:8) {
   load(paste0("./modelfits/",varlist[i],"_3p_updated"))
   post <- extract.samples(fit.test) 
   tempbr <- d %>% 
@@ -29,6 +30,9 @@ for(i in 1:9) {
 }
 
 mod2  <- storframe %>%
+  filter(variety != "Kordia (M)") %>%
+  mutate(variety = as.character(variety), 
+         variety = ifelse(variety == "Kordia (C )", "Kordia", variety)) %>%
   group_by(variety,CP_c) %>% 
   filter(budstate == 1) %>%
   summarise(min = max(GDH_c), 
@@ -47,22 +51,29 @@ mod  <- read.csv("./datafiles/Raw_combined_excel.csv") %>%
   summarise(mean = mean(min), 
             sd = sd(min),
             meanl = mean(ifelse(count==5,0,1))*100,
-            sdl = sd(ifelse(count==5,0,1))*100)
+            sdl = sd(ifelse(count==5,0,1))*100)  %>%
+  ungroup() %>%
+  filter(variety != "Kordia (M)") %>%
+  mutate(variety = as.character(variety), 
+         variety = ifelse(variety == "Kordia (C )", "Kordia", variety))
 
-intervals <- data.frame(variety = c("Rainier", 
-                                 "Lapins",
-                                 "Sweetheart",
-                                 "Bing", 
-                                 "Kordia (C )", 
-                                 "Kordia (M)", 
-                                 "Regina",
-                                 "Skeena", 
-                                 "Santina"),
-                        l = numeric(9),
-                        me = numeric(9),
-                        h = numeric(9))
+intervals <- data.frame(variety = character(8)),
+                        l = numeric(8),
+                        me = numeric(8),
+                        h = numeric(8))
 
-for(i in 1:9) intervals[i,2:4] <- ysat_quant(paste0("./modelfits/",intervals[i,1],"_3p_updated"))
+intervals$variety <- c("Rainier", 
+                       "Lapins",
+                       "Sweetheart",
+                       "Bing", 
+                       "Kordia (C )", 
+                       "Regina",
+                       "Skeena", 
+                       "Santina")
+
+for(i in 1:8) intervals[i,2:4] <- ysat_quant(paste0("./modelfits/",intervals[i,1],"_3p_updated"))
+
+intervals$variety[5] <- "Kordia"
 
 temp_img <- ggplot(mod, aes(x=CP)) + 
   geom_line(aes(y=mean)) + 
@@ -75,6 +86,8 @@ temp_img <- ggplot(mod, aes(x=CP)) +
   scale_y_continuous(limits=c(0,20000),sec.axis = sec_axis(~./50, breaks=c(0,100)))+
   facet_wrap(~variety) +
   geom_line(data = mod2,aes(x=CP_c, y=min, color = "red")) +
-  labs(x="Chilling Portions", y="Growing degree hours")
+  labs(x="Chilling Portions", y="Growing degree hours") + 
+  theme_classic() +
+  guides(color = FALSE)
 
 ggsave("./figures/posterior_activity.png", plot = temp_img, width=7,height=5)

@@ -1,5 +1,6 @@
 d <- read.csv("./datafiles/Raw_combined_excel.csv")
 varlist <- unique(d$variety)
+varlist <- varlist[varlist != "Kordia (M)"]
 
 ##########################################################
 # 
@@ -16,30 +17,37 @@ varlist <- unique(d$variety)
 
 ##########################################################
 
-post_samples_3p <- matrix(NA,2000,9) %>% as.data.frame
+post_samples_3p <- matrix(NA,2000,8) %>% as.data.frame
 
-for(i in 1:9) {
+for(i in 1:8) {
   load(paste0("./modelfits/",varlist[i],"_3p_updated"))
   post <- extract.samples(fit.test) 
   post_samples_3p[,i] <- post$Ysat %>% apply(1,mean)*unique(d$CP_scale)
   print(paste("3p import",i))
 }
 
+
 colnames(post_samples_3p) <- varlist
+colnames(post_samples_3p)[8] <- "Kordia"
 post_samples_3p$model <- "Logistic"
 
 ##########################################################
 
-post_samples_fifty <- read.csv("./datafiles/Raw_combined_excel.csv") %>% filter(week==3 & prop >= .5) %>% 
+post_samples_fifty <- read.csv("./datafiles/Raw_combined_excel.csv") %>% 
+  filter(week==3 & prop >= .5) %>% 
   group_by(variety, tree,sub) %>% 
   summarise(CP = min(CP)) %>%
   group_by(variety) %>%
   summarise(mean = mean(CP), sdv = sd(CP), l = mean -  1.96*sdv/2, h = mean +  1.96*sdv/2) %>%
   ungroup() %>%
-  select(variety,mean,sdv) 
+  select(variety,mean,sdv) %>%
+  filter(variety != "Kordia (M)") %>%
+  mutate(variety = as.character(variety), 
+         variety = ifelse(variety == "Kordia (C )", "Kordia", variety))
+
 
 post_samples_fifty_exp <- data.frame(variable = character(0), storvec = numeric(0))
-for(i in 1:9) post_samples_fifty_exp <- diamondfun(post_samples_fifty[i,]) %>% rbind(post_samples_fifty_exp)
+for(i in 1:8) post_samples_fifty_exp <- diamondfun(post_samples_fifty[i,]) %>% rbind(post_samples_fifty_exp)
 post_samples_fifty_exp$model <- "Fifty"
 colnames(post_samples_fifty_exp) <- c("variable", "value", "model")
 

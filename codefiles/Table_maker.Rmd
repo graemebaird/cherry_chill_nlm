@@ -1,0 +1,120 @@
+---
+title: "Table_maker"
+author: "Graeme Baird"
+date: "6/8/2018"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+
+library(pander)
+library(tidybayes)
+library(brms)
+library(magrittr)
+library(pander)
+library(tidybayes)
+d <- read.csv("../datafiles/Raw_combined_excel.csv")
+varlist <- unique(d$variety)
+
+
+```
+
+
+```{r}
+i = 1
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 2
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 3
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 4
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 5
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 6
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 7
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 8
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
+
+```{r}
+i = 9
+
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>%
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  mean_qi() %>%
+  pander
+
+```
