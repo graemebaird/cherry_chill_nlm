@@ -1,11 +1,11 @@
-d  <- read.csv("./datafiles/Raw_combined_excel.csv") 
+d  <- read.csv("datafiles/Raw_combined_excel.csv") 
 varlist <- unique(d$variety)
 varlist <- varlist[varlist != "Kordia (M)"]
 
 storframe <- data.frame(variety = character(0), CP_c = numeric(0), GDH_c = numeric(0), budstate = numeric(0))
 
 for(i in 1:8) {
-  load(paste0("./modelfits/",varlist[i],"_3p_updated"))
+  load(paste0("modelfits/",varlist[i],"_3p_updated"))
   post <- extract.samples(fit.test) 
   tempbr <- d %>% 
     mutate(treesub = paste0(chill,sub),
@@ -40,7 +40,7 @@ mod2  <- storframe %>%
 
 
 
-mod  <- read.csv("./datafiles/Raw_combined_excel.csv") %>%
+mod  <- read.csv("datafiles/Raw_combined_excel.csv") %>%
   melt(measure=c(6:20)) %>% 
   mutate(bud_u = as.factor(paste0(tree_u,variable))) %>%
   group_by(variety,CP, bud_u) %>% 
@@ -57,7 +57,7 @@ mod  <- read.csv("./datafiles/Raw_combined_excel.csv") %>%
   mutate(variety = as.character(variety), 
          variety = ifelse(variety == "Kordia (C )", "Kordia", variety))
 
-intervals <- data.frame(variety = character(8)),
+intervals <- data.frame(variety = character(8),
                         l = numeric(8),
                         me = numeric(8),
                         h = numeric(8))
@@ -71,7 +71,7 @@ intervals$variety <- c("Rainier",
                        "Skeena", 
                        "Santina")
 
-for(i in 1:8) intervals[i,2:4] <- ysat_quant(paste0("./modelfits/",intervals[i,1],"_3p_updated"))
+for(i in 1:8) intervals[i,2:4] <- ysat_quant(paste0("modelfits/",intervals[i,1],"_3p_updated"))
 
 intervals$variety[5] <- "Kordia"
 
@@ -86,8 +86,8 @@ temp_img <- ggplot(mod, aes(x=CP)) +
   scale_y_continuous(limits=c(0,20000),sec.axis = sec_axis(~./50, breaks=c(0,100)))+
   facet_wrap(~variety) +
   geom_line(data = mod2,aes(x=CP_c, y=min, color = "red")) +
-  labs(x="Chilling Portions", y="Growing degree hours") + 
+  labs(x="Chill accumulation (CP)", y="Heat requirement (GDH)") + 
   theme_classic() +
   guides(color = FALSE)
 
-ggsave("./figures/posterior_activity.png", plot = temp_img, width=7,height=5)
+ggsave("figures/posterior_activity.png", plot = temp_img, width=7,height=5)

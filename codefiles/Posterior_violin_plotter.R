@@ -1,4 +1,4 @@
-d <- read.csv("./datafiles/Raw_combined_excel.csv")
+d <- read.csv("datafiles/Raw_combined_excel.csv")
 varlist <- unique(d$variety)
 varlist <- varlist[varlist != "Kordia (M)"]
 
@@ -20,7 +20,7 @@ varlist <- varlist[varlist != "Kordia (M)"]
 post_samples_3p <- matrix(NA,2000,8) %>% as.data.frame
 
 for(i in 1:8) {
-  load(paste0("./modelfits/",varlist[i],"_3p_updated"))
+  load(paste0("modelfits/",varlist[i],"_3p_updated"))
   post <- extract.samples(fit.test) 
   post_samples_3p[,i] <- post$Ysat %>% apply(1,mean)*unique(d$CP_scale)
   print(paste("3p import",i))
@@ -33,7 +33,7 @@ post_samples_3p$model <- "Logistic"
 
 ##########################################################
 
-post_samples_fifty <- read.csv("./datafiles/Raw_combined_excel.csv") %>% 
+post_samples_fifty <- read.csv("datafiles/Raw_combined_excel.csv") %>% 
   filter(week==3 & prop >= .5) %>% 
   group_by(variety, tree,sub) %>% 
   summarise(CP = min(CP)) %>%
@@ -80,10 +80,10 @@ temp_img <- post_samples %>%
   coord_flip() + 
   theme_classic() + 
   xlab("") + 
-  ylab("CP saturation estimation") +
+  ylab("Estimated critical chilling requirement (CP)") +
   scale_y_continuous(limits = c(17,45))
 
 
-ggsave("./figures/violin_plot_3p.png", plot = temp_img, width=5, height=5)
+ggsave("figures/violin_plot_3p.png", plot = temp_img, width=5, height=5)
 
 

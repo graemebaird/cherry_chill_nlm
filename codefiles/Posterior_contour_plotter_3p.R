@@ -1,4 +1,4 @@
-d <- read.csv("./datafiles/Raw_combined_excel.csv")
+d <- read.csv("datafiles/Raw_combined_excel.csv")
 varlist <- unique(d$variety)
 varlist <- as.character(varlist[varlist != "Kordia (M)"])
 
@@ -47,5 +47,5 @@ temp_img <-  comp_tot %>%
   ylab("Asymptotic Deceleration Point")
 
   
-ggsave("./figures/contour_plot_3p.png", plot = temp_img,width = 5,height=5)
+ggsave("figures/contour_plot_3p.png", plot = temp_img,width = 5,height=5)
 
