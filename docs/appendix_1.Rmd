@@ -2,49 +2,20 @@
 title: "Model details"
 author: "Graeme Baird"
 date: "5/24/2018"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(rethinking)
+source("../codefiles/Functions.R")
 library(cowplot)
 ```
 
 ### Underlying model details
 
-In this paper we present an extension of a cumulative link ordinal regression model to include nonlinear effects, briefly described below. 
-
-The highest level of the model is a multinomial distribution mapping the ordinal bud-state outcomes [dormant 0; greentip 1; leaf-out 2] to categorical probabilities. For convenience we follow the model formulation by McKinley CITE, rephrased for this dataset, though other formulations of the cumulative link model have been well-described in frequentist and Bayesian contexts elsewhere. Set $Y_{ij}$ in ($Y_{i1}, Y_{i2}, Y_{i3}$) to be the ordinal group j for any observation i, $n_i$ the individual observed bud, and $\textbf{p}_i$ to be the vector of probabilities of occupying group j, yielding the unordered multinomial distribution
-
-$Y \sim Mult(n_i,\textbf{p}_i)$
-
-where $\textbf{p}_i$ = ($p_{i1}, p_{i2}, p_{i3}$). Coercing this distribution to an ordered form can be accomplished by linking the cumulative probability for each outcome $i$ occupying any group $j$ to a continuous variable $\gamma_{ij}$ via the monotonic increasing link function
-
-$h(\gamma_{ij}) = \theta_j - \mu_i$
-
-where $\theta_j$ is a set of cut-points (in this dataset, 2 cut-points) and $\mu_i$ is a regression term. In this case $\gamma$ serves as a convenient representation of the continuous underlying biological development process as each bud moves through the observed phenological stages. A link to chill and heat accumulation is assumed via
-
-$\mu_i = GDH_i * f(CP,\theta)$
-
-where $GDH_i$ is the accumulated growing degree hours at observation $i$ and $f(CP,\theta)$ is any nonlinear function on chilling portions and parameters $\theta$. In this case we use the standard logistic function
-
-$f(CP,\theta) = f(CP, \alpha, \beta, \eta) = \alpha * (1 + exp(\beta - \eta*CP))^{-1}$
-
-where $\alpha$ is the asymptote, $\beta$ is the location, and $\eta$ is the scale parameter. 
-
-This model assigns $\theta_1$ the role of mapping the maximum potential influence of CP on the growth curve of buds, and the ceiling rate of responsivity to GDH (at saturation CP, the formula approaches $\mu = GDH*\alpha$). The location ($\beta$) and rapidity ($\eta$) values define the transition between zones of small effect (insufficient chilling, with minimal effect of additional units), strong effect (insufficient chilling, with rapid growth increase from additional units), and again small effect (sufficient chilling, with minimal effect of additional units). It may be the case that the first phase is unobserved, and aggregation of CP immediately affects growth, or it may be the case that below some critical level (16-26CP, for example) there is little change in vigor - this is left to the model to infer. $f(CP,\theta)$ is scaled by GDH at the point of observation, framing CP as a "responsivity" modifier of growth potential given time or heat. 
-
-Conveniently, the derivatives of the logistic equation are well-studied, and have key properties useful to us - the first differential maxima indicate the transition between periods in the high-responsivity period, second differential minima indicate the transition to a "saturation period" of growth.
-
-$f^{(4)}(CP,\theta)$ has three roots, and the third root is at the final saturation inflection of the sigmoid curve, with a closed-form analytical solution of the form
-
-$-[ln(5-2\sqrt6) + \beta]/\eta$
-
-which, in the Stan code, can be determined simultaneously in the ``generated quantities" block via
-
-`Ysat = -log(5 - 2*sqrt(6)) + mu_beta)/mu_eta`
-
+In this paper we present an extension of a cumulative link ordinal regression model to include nonlinear effects, and it's application to determining chill sufficiency in cherry production. Below are figures illustrating the effect of variations in parameters.
 
 ### Plotting response of nonlinear CP equation to changes in parameters (X:CP, Y:Coefficient output)
 

@@ -47,7 +47,7 @@ model {
   real mu_eta = b_eta; 
   vector[N] mu; 
   for (n in 1:N) { 
-    mu_alpha[n] = mu_alpha[n] + (r_1_alpha_1[J_1[n]]) * Z_1_alpha_1[n] + (r_2_alpha_1[J_2[n]])               * Z_2_alpha_1[n]; 
+    mu_alpha[n] = mu_alpha[n] + (r_1_alpha_1[J_1[n]]) * Z_1_alpha_1[n] + (r_2_alpha_1[J_2[n]]) * Z_2_alpha_1[n]; 
     mu[n] = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta - C_2[n]*mu_eta)));
     target += ordered_logistic_lpmf(Y[n] | mu[n], temp_Intercept);
   } 
@@ -77,6 +77,7 @@ generated quantities {
   real Ysat;
 
   for (n in 1:N) {
+    mu_alpha[n] = mu_alpha[n] + (r_1_alpha_1[J_1[n]]) * Z_1_alpha_1[n] + (r_2_alpha_1[J_2[n]]) * Z_2_alpha_1[n];
     mu = C_1[n] * (mu_alpha[n] / (1 + exp(-mu_beta - C_2[n]*mu_eta)));
     Yrep[n] = ordered_logistic_rng(mu, temp_Intercept);
     Ysat = -(mu_beta - 2.292432)/mu_eta;

@@ -84,7 +84,7 @@ temp_img <- ggplot(mod, aes(x=CP)) +
   geom_vline(data=intervals, aes(xintercept = l), linetype="dotted",color="red") +
   geom_vline(data=intervals, aes(xintercept = h), linetype="dotted",color="red") +
   scale_y_continuous(limits=c(0,20000),sec.axis = sec_axis(~./50, breaks=c(0,100)))+
-  facet_wrap(~variety) +
+  facet_wrap(~variety,ncol=2) +
   geom_line(data = mod2,aes(x=CP_c, y=min, color = "red")) +
   labs(x="Chill accumulation (CP)", y="Heat requirement (GDH)") + 
   theme_classic() +
