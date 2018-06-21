@@ -3,8 +3,8 @@ title: "Table_maker"
 author: "Graeme Baird"
 date: "6/8/2018"
 output:
-  pdf_document: default
   word_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -26,7 +26,7 @@ i = 1
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -37,7 +37,7 @@ i = 2
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -48,7 +48,7 @@ i = 3
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -59,7 +59,7 @@ i = 4
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -70,7 +70,7 @@ i = 5
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -81,7 +81,7 @@ i = 6
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -92,7 +92,7 @@ i = 7
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -103,7 +103,7 @@ i = 8
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
@@ -114,8 +114,21 @@ i = 9
 
   load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>%
-  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat[1]`) %>% 
+  gather_samples(`b_alpha[1]`, b_beta, b_eta, `temp_Intercept[1]`, `temp_Intercept[2]`, `Ysat`) %>% 
   mean_qi() %>%
   pander
 
 ```
+
+```{r}
+for(i in 1:9) {
+  
+  load(paste0("modelfits/",varlist[i],"_3p_updated"))
+  fit.test %>% 
+    posterior_samples %$% 
+    quantile(Ysat*14.3562,c(.025,.5,.975)) %>%
+    print()
+  print(varlist[i])
+}
+```
+
