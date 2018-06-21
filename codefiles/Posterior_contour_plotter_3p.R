@@ -83,8 +83,10 @@ b <- comp_tot %>% ggplot(aes(value_3p, y = ..scaled.., fill=Variety)) + geom_den
 
 
 
-leg <- comp_tot %>% ggplot(aes(value_3p, y = ..scaled.., fill=Variety)) + geom_density(alpha=.5) + 
-  theme(legend.position = "right") + 
+leg <- comp_tot %>% ggplot(aes(value_3p, y = ..scaled.., fill=Variety)) + 
+  geom_density(alpha=.5) + 
+  theme(legend.position = "right",
+        legend.text=element_text(size=8)) + 
   guides(fill=guide_legend(ncol=2)) + 
   scale_x_continuous(limits=c(30,44)) +
   coord_flip() +
@@ -102,12 +104,11 @@ library(grid)
 grid.draw(mylegend)
 
 
-grob_arrange <- grid.arrange(a,temp_img,b,mylegend,
+grid.arrange(a,temp_img,b,mylegend,
              layout_matrix = rbind(c(1,1,1,1,4), 
                                    c(2,2,2,2,3),
                                    c(2,2,2,2,3),
                                    c(2,2,2,2,3),
-                                   c(2,2,2,2,3)),padding=0)
-  
-ggsave("figures/contour_plot_3p.png", plot = grob_arrange,width = 5,height=5)
+                                   c(2,2,2,2,3)),padding=0) %>%
+  ggsave("figures/contour_plot_3p.png", plot = .,width = 8,height=8)
 
