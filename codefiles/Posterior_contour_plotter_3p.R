@@ -39,13 +39,75 @@ temp_table <- comp_tot %>%
 
 colnames(comp_tot)[1] <- "Variety"
 
+
 temp_img <-  comp_tot %>%
   ggplot(aes(value,value_3p, color=Variety)) +
   stat_ellipse(type="t", level=.9,size=1.2) +
   theme_classic() + 
+  theme(legend.position="none") +
   xlab("Alpha-Ratio") +
-  ylab("Asymptotic Deceleration Point")
+  ylab("Asymptotic Deceleration Point") +
+  scale_y_continuous(limits=c(30,44), breaks=c(30,32,34,36,38,40,42,44)) +
+  scale_x_continuous(limits=c(.35,.65), breaks = c(.35,.40,.45,.50,.55,.60,.65)) +
+  scale_color_brewer(palette="Dark2")
 
+
+a <- comp_tot %>% ggplot(aes(value, y = ..scaled.., fill=Variety)) + geom_density(alpha=.5) + 
+  theme_classic() +
+  theme(legend.position = "none",
+        axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y=element_text(colour="white"),
+        axis.text.y=element_text(colour="white"),
+        axis.ticks.y=element_line(colour="white"),
+        axis.line.y=element_line(colour="white")) +
+  scale_x_continuous(limits=c(.35,.65))+
+  scale_fill_brewer(palette="Dark2")
+
+
+
+b <- comp_tot %>% ggplot(aes(value_3p, y = ..scaled.., fill=Variety)) + geom_density(alpha=.5) + 
+  scale_x_continuous(limits=c(30,44)) +
+  coord_flip()+
+  theme_classic() +
+  theme(legend.position = "none",
+        axis.title.x=element_text(colour="white"),
+        axis.text.x=element_text(colour="white"),
+        axis.ticks.x=element_line(colour="white"),
+        axis.line.x=element_line(colour="white"),
+        axis.title.y=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks.y=element_blank())+
+  scale_fill_brewer(palette="Dark2")
+
+
+
+leg <- comp_tot %>% ggplot(aes(value_3p, y = ..scaled.., fill=Variety)) + geom_density(alpha=.5) + 
+  theme(legend.position = "right") + 
+  guides(fill=guide_legend(ncol=2)) + 
+  scale_x_continuous(limits=c(30,44)) +
+  coord_flip() +
+  scale_fill_brewer(palette="Dark2")
+
+g_legend <- function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
+mylegend <- g_legend(leg)
+library(grid)
+grid.draw(mylegend)
+
+
+grob_arrange <- grid.arrange(a,temp_img,b,mylegend,
+             layout_matrix = rbind(c(1,1,1,1,4), 
+                                   c(2,2,2,2,3),
+                                   c(2,2,2,2,3),
+                                   c(2,2,2,2,3),
+                                   c(2,2,2,2,3)),padding=0)
   
-ggsave("figures/contour_plot_3p.png", plot = temp_img,width = 5,height=5)
+ggsave("figures/contour_plot_3p.png", plot = grob_arrange,width = 5,height=5)
 

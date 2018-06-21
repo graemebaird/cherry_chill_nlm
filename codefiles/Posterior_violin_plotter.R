@@ -29,7 +29,7 @@ for(i in 1:8) {
 
 colnames(post_samples_3p) <- varlist
 colnames(post_samples_3p)[8] <- "Kordia"
-post_samples_3p$model <- "Logistic"
+post_samples_3p$Model <- "Logistic"
 
 ##########################################################
 
@@ -48,8 +48,8 @@ post_samples_fifty <- read.csv("datafiles/Raw_combined_excel.csv") %>%
 
 post_samples_fifty_exp <- data.frame(variable = character(0), storvec = numeric(0))
 for(i in 1:8) post_samples_fifty_exp <- diamondfun(post_samples_fifty[i,]) %>% rbind(post_samples_fifty_exp)
-post_samples_fifty_exp$model <- "Fifty"
-colnames(post_samples_fifty_exp) <- c("variable", "value", "model")
+post_samples_fifty_exp$Model <- "Fifty"
+colnames(post_samples_fifty_exp) <- c("variable", "value", "Model")
 
 ##########################################################
 # 
@@ -74,7 +74,7 @@ colnames(post_samples_fifty_exp) <- c("variable", "value", "model")
 post_samples <- rbind(post_samples_3p) %>% melt %>% rbind(post_samples_fifty_exp)
 
 temp_img <- post_samples %>% 
-  ggplot(aes(variable,value,color=model,fill=model)) +
+  ggplot(aes(variable,value,color=Model,fill=Model)) +
   geom_violin() +  
   geom_vline(xintercept = 1.5:8.5,linetype="dotdash",alpha = .5) +
   coord_flip() + 
