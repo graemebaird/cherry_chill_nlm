@@ -45,11 +45,11 @@ post_samples_fifty <- read.csv("datafiles/Raw_combined_excel.csv") %>%
   mutate(variety = as.character(variety), 
          variety = ifelse(variety == "Kordia (C )", "Kordia", variety))
 
-
-post_samples_fifty_exp <- data.frame(variable = character(0), storvec = numeric(0))
-for(i in 1:8) post_samples_fifty_exp <- diamondfun(post_samples_fifty[i,]) %>% rbind(post_samples_fifty_exp)
-post_samples_fifty_exp$Model <- "Fifty"
-colnames(post_samples_fifty_exp) <- c("variable", "value", "Model")
+# 
+# post_samples_fifty_exp <- data.frame(variable = character(0), storvec = numeric(0))
+# for(i in 1:8) post_samples_fifty_exp <- diamondfun(post_samples_fifty[i,]) %>% rbind(post_samples_fifty_exp)
+# post_samples_fifty_exp$Model <- "Fifty"
+# colnames(post_samples_fifty_exp) <- c("variable", "value", "Model")
 
 ##########################################################
 # 
@@ -71,19 +71,18 @@ colnames(post_samples_fifty_exp) <- c("variable", "value", "Model")
 
 #post_samples <- rbind(post_samples_3p) %>% melt %>% rbind(post_samples_fifty_exp)
 #post_samples <- rbind(post_samples_plat,post_samples_3p,post_samples_3p_95,post_samples_3p_dsim) %>% melt %>% rbind(post_samples_fifty_exp)
-post_samples <- rbind(post_samples_3p) %>% melt %>% rbind(post_samples_fifty_exp)
+post_samples <- post_samples_3p %>% melt
 
-temp_img <- post_samples %>% 
-  ggplot(aes(variable,value,color=Model,fill=Model)) +
-  geom_violin() +  
-  geom_vline(xintercept = 1.5:8.5,linetype="dotdash",alpha = .5) +
-  coord_flip() + 
+temp_img <- ggplot(data = post_samples,aes(x = value, y = variable, height=..density..)) +
+  geom_joy(scale=0.85, alpha = .8) +
+  geom_errorbarh(data = post_samples_fifty, 
+                 aes(x=mean, xmin = mean-sdv, xmax = mean + sdv, y = variety ), 
+                 inherit.aes=F, position=position_nudge(y = .2), height = .4)  +
+  geom_point(data = post_samples_fifty, 
+                   aes(x=mean, y = variety ), 
+                   inherit.aes=F, position=position_nudge(y = .2)) +
   theme_classic() + 
-  xlab("") + 
-  ylab("Estimated critical chilling requirement (CP)") +
-  scale_y_continuous(limits = c(17,45))
-
+  ylab("Variety") + 
+  xlab("Estimated critical chilling requirement (CP)")
 
 ggsave("figures/violin_plot_3p.png", plot = temp_img, width=5, height=5)
-
-
