@@ -2,13 +2,14 @@
 title: "Table_maker"
 author: "Graeme Baird"
 date: "6/8/2018"
-output: word_document
+output:
+  pdf_document: default
+  word_document: default
 ---
 
 ```{r setup, include=FALSE}
 
 library(pander)
-library(tidybayes)
 library(brms)
 library(magrittr)
 library(pander)
