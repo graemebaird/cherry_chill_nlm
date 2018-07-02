@@ -25,46 +25,46 @@ out <- 100
 CP <- seq(0,70,length.out=out)
 
 
-logfun <- function(CP, phi1, phi2, phi3) {
-  lout <- phi1/(1+exp((phi3 - CP)/phi2))
+logfun <- function(CP, alpha, beta, eta) {
+  lout <- alpha/(1+exp(-beta - CP*eta))
   return(lout)
 }
 
-logmak <- function(CP, phi1, phi2, phi3){
+logmak <- function(CP, alpha, beta, eta){
   funout <- rep(NA,out)
-  for(i in 1:out){funout[i] <- logfun(CP[i], phi1, phi2, phi3)}
+  for(i in 1:out){funout[i] <- logfun(CP[i], alpha, beta, eta)}
   return(funout)
 }
 
-logit_pred <- function(GDH, CP, phi1, phi2, phi3) {
+logit_pred <- function(GDH, CP, alpha, beta, eta) {
   ak <- c(2,5)
-  phi <- GDH * logfun(CP, phi1, phi2, phi3);
+  phi <- GDH * logfun(CP, alpha, beta, eta);
   storeframe <- pordlogit(1:3, a=ak, phi=phi)
   storeframe[3] <- storeframe[3]- storeframe[2]
   storeframe[2] <- storeframe[2] - storeframe[1]
   return(1-storeframe[1])
 }
 
-logit_mak <- function(GDH, CP, phi1, phi2, phi3){
+logit_mak <- function(GDH, CP, alpha, beta, eta){
   funout <- rep(NA,out)
-  for(i in 1:out){funout[i] <- logit_pred(GDH[i], CP, phi1, phi2, phi3)}
+  for(i in 1:out){funout[i] <- logit_pred(GDH[i], CP, alpha, beta, eta)}
   return(funout)
 }
 
-logit_pred_gamma <- function(GDH, CP, phi1, phi2, phi3) {
+logit_pred_gamma <- function(GDH, CP, alpha, beta, eta) {
   ak <- c(2,5)
-  GDH * logfun(CP, phi1, phi2, phi3);
+  GDH * logfun(CP, alpha, beta, eta);
 }
 
-logit_mak_gamma <- function(GDH, CP, phi1, phi2, phi3){
+logit_mak_gamma <- function(GDH, CP, alpha, beta, eta){
   funout <- rep(NA,out)
-  for(i in 1:out){funout[i] <- logit_pred_gamma(GDH[i], CP, phi1, phi2, phi3)}
+  for(i in 1:out){funout[i] <- logit_pred_gamma(GDH[i], CP, alpha, beta, eta)}
   return(funout)
 }
 
 ```
 
-Parameter variance within the non-linear component is best visualized by piecemeal manipulation of individual parameters, as follows. Parameter ranges demonstrated below are appropriate for un-scaled variables and don't necessarily match actual model parameter estimates, which are fit on scaled observations. 
+Parameter variance within the non-linear component is best visualized by manipulation of individual parameters, as follows. Parameter ranges demonstrated below are appropriate for un-scaled variables and don't necessarily match actual model parameter estimates, which are fit on scaled observations. 
 
 #### Changes in alpha determine asymptotic maximum possible growth rate 
 
@@ -73,41 +73,41 @@ Parameter variance within the non-linear component is best visualized by pieceme
 CP <- seq(0,70,length.out=100)
 GDH <- seq(0,20000,length.out=out)
 
-plot(CP, logfun(CP, 3,5,25),type="l", xlim=c(0,80), ylab="")
+plot(CP, logfun(CP, 3,-30,1),type="l", xlim=c(0,80), ylab="")
 text(75,3,labels="alpha = 3")
-lines(CP, logfun(CP, 2,5,25),type="l", col="red")
+lines(CP, logfun(CP, 2,-30,1),type="l", col="red")
 text(75,2,labels="alpha = 2")
-lines(CP, logfun(CP, 1,5,25),type="l", col="blue")
+lines(CP, logfun(CP, 1,-30,1),type="l", col="blue")
 text(75,1,labels="alpha = 1")
-lines(CP, logfun(CP, .5,5,25),type="l", col="purple")
+lines(CP, logfun(CP, .5,-30,1),type="l", col="purple")
 text(75,.5,labels="alpha = .5")
 
 ```
 
-#### Changes in beta determine acceleration between inflection points
+#### Changes in beta determine overall location of curve
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
 
-plot(CP, logfun(CP, 3,10,25),type="l", xlim=c(0,70), ylab="")
-text(8,2.5,labels="beta = 10")
-lines(CP, logfun(CP, 3,7,25),type="l", col="red")
-text(8,2,labels="beta = 7")
-lines(CP, logfun(CP, 3,4,25),type="l", col="blue")
-text(8,1.5,labels="beta = 4")
-lines(CP, logfun(CP, 3,1,25),type="l", col="purple")
-text(8,1,labels="beta = 1")
+plot(CP, logfun(CP, 3,-40,1),type="l", xlim=c(0,70), ylab="")
+text(45,2.5,labels="beta = -40")
+lines(CP, logfun(CP, 3,-30,1),type="l", col="red")
+text(35,2,labels="beta = -30")
+lines(CP, logfun(CP, 3,-20,1),type="l", col="blue")
+text(25,1.5,labels="beta = -20")
+lines(CP, logfun(CP, 3,-10,1),type="l", col="purple")
+text(15,1,labels="beta = -10")
 
 ```
 
-#### Changes in eta determine overall location of curve
+#### Changes in eta determine location and acceleration between inflection points
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
 
-plot(CP, logfun(CP, 3,7,25),type="l", xlim=c(0,70), ylab="")
+plot(CP, logfun(CP, 1,-10,.5),type="l", xlim=c(0,70), ylab="")
 text(8,2.5,labels="eta = 25")
-lines(CP, logfun(CP, 3,7,35),type="l", col="red")
+lines(CP, logfun(CP, 1,-10,.4),type="l", col="red")
 text(8,2,labels="eta = 35")
-lines(CP, logfun(CP, 3,7,45),type="l", col="blue")
+lines(CP, logfun(CP, 1,-10,.3),type="l", col="blue")
 text(8,1.5,labels="eta = 45")
-lines(CP, logfun(CP, 3,7,55),type="l", col="purple")
+lines(CP, logfun(CP, 1,-10,.2),type="l", col="purple")
 text(8,1,labels="eta = 55")
 
 ```
@@ -115,9 +115,9 @@ text(8,1,labels="eta = 55")
 #### Gamma responsivity to GDH given fixed parameters and varying CP rates
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
 
-p1 <- .0005
-p2 <- 10
-p3 <- 25
+p1 <- .00025
+p2 <- -10
+p3 <- .3
 tit <- paste("alpha:", p1, "beta:", p2, "eta:", p3)
 plot(GDH, logit_mak_gamma(GDH,CP = 50, p1,p2,p3), type="l", main=tit, ylab="")
 text(18000,5,labels="CP = 50")
@@ -126,29 +126,29 @@ text(18000,4,labels="CP = 40")
 lines(GDH, logit_mak_gamma(GDH,CP = 35, p1,p2,p3), type="l",  col="blue")
 text(18000,3,labels="CP = 30")
 lines(GDH, logit_mak_gamma(GDH,CP = 25, p1,p2,p3), type="l",  col="purple")
-text(18000,2,labels="CP = 20")
+text(18000,.5,labels="CP = 20")
 lines(GDH, logit_mak_gamma(GDH,CP = 15, p1,p2,p3), type="l",  col="grey")
-text(18000,1,labels="CP = 15")
+text(18000,0,labels="CP = 15")
 
 ```
 
 #### Simulated budbreak responsivity (proportion in [0,1]) to GDH given fixed parameters, varying CP rates, and arbitrary cutpoints (2,5)
 ```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.height=4, fig.width = 5}
 
-p1 <- .0005
-p2 <- 10
-p3 <- 25
+p1 <- .00025
+p2 <- -10
+p3 <- .3
 tit <- paste("alpha:", p1, "beta:", p2, "eta:", p3)
 plot(GDH, logit_mak(GDH,CP = 50, p1,p2,p3), type="l", main=tit, ylab="")
 text(18000,.9,labels="CP = 50")
 lines(GDH, logit_mak(GDH,CP = 45, p1,p2,p3), type="l",  col="red")
 text(18000,.8,labels="CP = 40")
 lines(GDH, logit_mak(GDH,CP = 35, p1,p2,p3), type="l",  col="blue")
-text(18000,.7,labels="CP = 30")
+text(18000,.5,labels="CP = 30")
 lines(GDH, logit_mak(GDH,CP = 25, p1,p2,p3), type="l",  col="purple")
-text(18000,.6,labels="CP = 20")
+text(18000,.2,labels="CP = 20")
 lines(GDH, logit_mak(GDH,CP = 15, p1,p2,p3), type="l",  col="grey")
-text(18000,.5,labels="CP = 15")
+text(18000,.1,labels="CP = 15")
 
 ```
 
