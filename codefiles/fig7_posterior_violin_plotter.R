@@ -85,4 +85,4 @@ temp_img <- ggplot(data = post_samples,aes(x = value, y = variable, height=..den
   ylab("Variety") + 
   xlab("Estimated critical chilling requirement (CP)")
 
-ggsave("figures/violin_plot_3p.png", plot = temp_img, width=5, height=5)
+ggsave("figures/fig7_violin_plot_3p.png", plot = temp_img, width=5, height=5)

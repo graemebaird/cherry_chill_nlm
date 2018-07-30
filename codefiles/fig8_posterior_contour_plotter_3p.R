@@ -110,5 +110,5 @@ grid.arrange(a,temp_img,b,mylegend,
                                    c(2,2,2,2,3),
                                    c(2,2,2,2,3),
                                    c(2,2,2,2,3)),padding=0) %>%
-  ggsave("figures/contour_plot_3p.png", plot = .,width = 8,height=8)
+  ggsave("figures/fig8_contour_plot_3p.png", plot = .,width = 8,height=8)
 

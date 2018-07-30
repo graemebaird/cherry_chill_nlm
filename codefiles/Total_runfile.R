@@ -14,6 +14,7 @@ library(magrittr)
 library(dplyr)
 library(plotly)
 library(chillR)
+library(ggjoy)
 
 # Functions file
 source("./codefiles/Functions.R")
@@ -25,11 +26,11 @@ source("./codefiles/Data_preparation.R")
 source("./codefiles/Fit_models.R")
 
 # Create Figure X 
-source("./codefiles/Posterior_violin_plotter.R")
+source("./codefiles/fig7_posterior_violin_plotter.R")
 
 # Create Figure X 
-source("./codefiles/Posterior_contour_plotter_3p.R")
+source("./codefiles/fig8_posterior_contour_plotter_3p.R")
 
 # Create Figure X
-source("./codefiles/Raw_posterior_activity_plotter.R")
+source("./codefiles/fig9_raw_posterior_activity_plotter.R")
 

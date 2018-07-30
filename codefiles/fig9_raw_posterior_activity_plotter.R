@@ -90,4 +90,4 @@ temp_img <- ggplot(mod, aes(x=CP)) +
   theme_classic() +
   guides(color = FALSE)
 
-ggsave("figures/posterior_activity.png", plot = temp_img, width=7,height=5)
+ggsave("figures/fig9_posterior_activity.png", plot = temp_img, width=7,height=5)
