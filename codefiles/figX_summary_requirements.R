@@ -44,8 +44,8 @@ gdh_plot <- GDH_samples %>%
   melt() %>% 
   group_by(variable) %>% 
   summarise(mean = mean(value), 
-            sdh = mean + sd(value), 
-            sdl = mean - sd(value)) %>% 
+            sdh = quantile(value,.95), 
+            sdl = quantile(value,.05)) %>% 
   ggplot() + 
   geom_pointrange(aes(x = reorder(variable,mean,fun=median), y = mean, ymin = sdl, ymax = sdh)) + 
   xlab("Variety") +
@@ -70,14 +70,14 @@ for(i in 1:9) {
 
 
 colnames(post_samples_3p) <- varlist
-colnames(post_samples_3p)[8] <- "Kordia C"
+colnames(post_samples_3p)[8] <- "Kordia (M)"
 
 cp_plot <- post_samples_3p %>% 
   melt() %>% 
   group_by(variable) %>% 
   summarise(mean = mean(value), 
-            sdh = mean + sd(value), 
-            sdl = mean - sd(value)) %>% 
+            sdh = quantile(value,.95), 
+            sdl = quantile(value,.05)) %>% 
   ggplot() + 
   geom_pointrange(aes(x = reorder(variable,mean,fun=median), y = mean, ymin = sdl, ymax = sdh)) + 
   xlab("Variety") +
@@ -85,5 +85,6 @@ cp_plot <- post_samples_3p %>%
   ggtitle("Chilling sufficiency requirement")
 
 
-grid.arrange(gdh_plot,cp_plot)
+grid.arrange(gdh_plot,cp_plot) %>%
+  ggsave("figures/figx_summary_requirements.png", plot = .,width = 7,height=9)
 
