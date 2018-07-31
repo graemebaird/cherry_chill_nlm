@@ -1,9 +1,15 @@
 ### Introduction
-This collection of R scripts performs the analysis and generates the figures found in [paper citation]. Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. 
+This collection of R scripts performs the analysis and generates the figures found in Baird et al. 2018 submitted paper "Nonlinear Ordinal Regression to Predict Bud Dormancy Requirements and Bud Burst in Deciduous Trees". 
 
-Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
+The objectives of this project were to consolidate experimental cherry phenology data, field phenology data, and incubator/field climate data into a single analytical model to:
 
-The Bayesian cumulative link model used in our paper is fit here using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the R package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
+1. Determine cherry varietal differences in winter chill requirements
+2. Determine cherry varietal differences in spring/summer heat requirements
+3. Formulate a reproducible, extensible approach to modeling bud phenology observations under varying climate regimes
+
+To accomplish these objectives, here we develop and implement a Bayesian hierarchical cumulative link model. The model used in our paper is fit using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `datafiles/`. Scripts required to perform all analyses and figure generation are in `codefiles/`. Stan files, located in `stanfiles/`, are executed with the R package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
+
+Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
 
 Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits which will require disc and memory storage). 
 
