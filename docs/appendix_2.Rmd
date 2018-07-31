@@ -26,27 +26,27 @@ require(gridExtra)
 require(knitr)
 
 
-d <- read.csv("Raw_combined_excel.csv")
-e <- read.csv("Summary_stats.csv")
+d <- read.csv("../datafiles/Raw_combined_excel.csv")
+e <- read.csv("../datafiles/Summary_stats.csv")
 
-load("bing.fit")
-Bi.post <- extract.samples(fit.Bi)
-load("kordiac.fit")
-KoC.post <- extract.samples(fit.KoC)
-load("kordiam.fit")
-KoM.post <- extract.samples(fit.KoM)
-load("lapins.fit")
-La.post <- extract.samples(fit.La)
-load("rainier.fit")
-Ra.post <- extract.samples(fit.Ra)
-load("regina.fit")
-Re.post <- extract.samples(fit.Re)
-load("santina.fit")
-Sa.post <- extract.samples(fit.Sa)
-load("skeena.fit")
-Sk.post <- extract.samples(fit.Sk)
-load("sweetheart.fit")
-Sw.post <- extract.samples(fit.Sw)
+load("../modelfits/Bing_3p_updated")
+Bi.post <- extract.samples(fit.test)
+load("../modelfits/Kordia (C )_3p_updated")
+KoC.post <- extract.samples(fit.test)
+load("../modelfits/Kordia (M)_3p_updated")
+KoM.post <- extract.samples(fit.test)
+load("../modelfits/Lapins_3p_updated")
+La.post <- extract.samples(fit.test)
+load("../modelfits/Rainier_3p_updated")
+Ra.post <- extract.samples(fit.test)
+load("../modelfits/Regina_3p_updated")
+Re.post <- extract.samples(fit.test)
+load("../modelfits/Santina_3p_updated")
+Sa.post <- extract.samples(fit.test)
+load("../modelfits/Skeena_3p_updated")
+Sk.post <- extract.samples(fit.test)
+load("../modelfits/Sweetheart_3p_updated")
+Sw.post <- extract.samples(fit.test)
 ```
 
 
@@ -71,14 +71,10 @@ Sw.post <- extract.samples(fit.Sw)
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
 
-tempdf <- melt(d, measure=colnames(d)[c(6:20)])
-tempdf <- tempdf[!is.na(tempdf$CP),]
-tempdf$CP_c <- tempdf$CP.c - min(tempdf$CP.c)
-tempdf$GDH_c <- tempdf$GDH.c - min(tempdf$GDH.c)
-tempdf$value <- as.integer(tempdf$value +1 )
-tempdf$bud_u <- paste(tempdf$tree_u,tempdf$variable,sep="")
-tempdf$bud_u <- as.factor(tempdf$bud_u)
-
+tempdf <- melt(d, measure=colnames(d)[c(6:20)]) %>% 
+  na.omit(CP) %>%
+  mutate(value = as.integer(value + 1),
+         bud_u = as.factor(paste0(tree_u,variable)))
 
 mod  <- tempdf %>% 
   group_by(variety, CP, bud_u) %>% 
@@ -108,15 +104,6 @@ ggplot(mod, aes(x=CP)) +
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-tempdf <- melt(d, measure=colnames(d)[c(6:20)])
-tempdf <- tempdf[!is.na(tempdf$CP),]
-tempdf$CP_c <- tempdf$CP.c - min(tempdf$CP.c)
-tempdf$GDH_c <- tempdf$GDH.c - min(tempdf$GDH.c)
-tempdf$value <- as.integer(tempdf$value +1 )
-tempdf$bud_u <- paste(tempdf$tree_u,tempdf$variable,sep="")
-tempdf$bud_u <- as.factor(tempdf$bud_u)
-
 
 mod  <- tempdf %>% 
   group_by(variety,CP, bud_u) %>% 
@@ -166,7 +153,7 @@ bb_data <- te
 # Slide 3b: minimum CH required to reach 50% budbreak at 21 days in greenhouse - raw data summary
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-g <- read.csv("Raw_combined_excel_chours.csv")
+g <- read.csv("../test/Raw_combined_excel_chours.csv")
 
 te <- g %>% filter(week==3 & prop >= .5) %>% 
   group_by(variety, tree,sub) %>% 
@@ -190,7 +177,7 @@ bb_data_ch <- te
 # Slide 3c: minimum CH required to reach 50% budbreak at 21 days in greenhouse - raw data summary
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE}
-g <- read.csv("Raw_combined_excel_cunits.csv")
+g <- read.csv("../test/Raw_combined_excel_cunits.csv")
 
 te <- g %>% filter(week==3 & prop >= .5) %>% 
   group_by(variety, tree,sub) %>% 
@@ -209,474 +196,3 @@ ggplot(te, aes(variety, mean, ymin = mean-sem, ymax = mean+sem)) +
 bb_data_cu <- te
 
 ```
-
-# Slide 4: Saturation threshold using estimate of 97.5% chill effect - model estimate
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-int_diff <- function(vr, post, min_r) {
-  
-  rn <- seq(13,62,length.out=10000)
-  imp <- seq(0,4,length.out=10000)
-  imp.y <- rep(NA,10000)
-  t <- imp
-  
-  y <- mean(post$`b_xmid[1]`)
-  K <- mean(post$`b_Asym[1]`)
-  r <- mean(post$`b_scal[1]`)
-  m.y <- K/(1+exp((y-t)/r))
-  
-  y <- PI(post$`b_xmid[1]`,prob = .95)[1]
-  K <- PI(post$`b_Asym[1]`,prob = .95)[1]
-  r <- PI(post$`b_scal[1]`,prob = .95)[1]
-  m.l <- K/(1+exp((y-t)/r))
-  
-  y <- PI(post$`b_xmid[1]`,prob = .95)[2]
-  K <- PI(post$`b_Asym[1]`,prob = .95)[2]
-  r <- PI(post$`b_scal[1]`,prob = .95)[2]
-  m.h <- K/(1+exp((y-t)/r))
-
-  f.m <- rn[min(which(m.y > min_r*max(m.y)))]
-  f.l <- rn[min(which(m.l > min_r*max(m.l)))]
-  f.h <- rn[min(which(m.h > min_r*max(m.h)))]
-  
-  gr <- ggplot() + 
-    geom_line(aes(x=rn, y=m.y/max(m.y))) +
-    geom_vline(xintercept = f.m,color="red") +
-    geom_vline(xintercept = f.l, linetype="dotted",color="red")+
-    geom_vline(xintercept = f.h, linetype="dotted",color="red") +
-    labs(x="CP", y="Scaled growth curve") +
-    ggtitle(paste(vr, min_r*100, "% of maximum effect"))
-  
-  
-  return(list(c(f.m[1],f.l[1],f.h[1]), gr))
-}
-
-
-
-
-satp <- .975
-
-intervals <- data.frame(vr = c("Ra", "La", "Sw", "Bi", "KoC", "KoM", "Re", "Sk", "Sa"),
-                        me = numeric(9),
-                        l = numeric(9),
-                        h = numeric(9))
-
-post <- posterior_samples(fit.Ra)
-intervals[1,2:4] <- int_diff("Ra", post, satp)[[1]]
-
-post <- posterior_samples(fit.La)
-intervals[2,2:4] <- int_diff("La",post, satp)[[1]]
-
-post <- posterior_samples(fit.Sw)
-intervals[3,2:4] <- int_diff("Sw",post, satp)[[1]]
-
-post <- posterior_samples(fit.Bi)
-intervals[4,2:4] <- int_diff("Bi",post, satp)[[1]]
-
-post <- posterior_samples(fit.KoC)
-intervals[5,2:4] <- int_diff("KoC",post, satp)[[1]]
-
-post <- posterior_samples(fit.KoM)
-intervals[6,2:4] <- int_diff("KoM",post, satp)[[1]]
-
-post <- posterior_samples(fit.Re)
-intervals[7,2:4] <- int_diff("Re",post, satp)[[1]]
-
-post <- posterior_samples(fit.Sk)
-intervals[8,2:4] <- int_diff("Sk",post, satp)[[1]]
-
-post <- posterior_samples(fit.Sa)
-intervals[9,2:4] <- int_diff("Sa",post, satp)[[1]]
-
-intervals$variety <- intervals$vr
-intervals$variety <- plyr::mapvalues(intervals$variety, from =c("Ra",  "La",  "Sw",  "Bi",  "KoC", "KoM", "Re",  "Sk",  "Sa"),to=c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"
-))
-
-ggplot(intervals, aes(x=vr, y=me,ymin=l,ymax=h)) + 
-  geom_pointrange() +
-  labs(x="Varieties", y="Chilling Portions")+
-  theme_bw()
-
-
-bb_model <- intervals
-
-mod  <- tempdf %>% 
-  group_by(variety,CP, bud_u) %>% 
-  filter(value == 1) %>%
-  summarise(min = max(GDH), 
-            count = length(GDH)) %>% 
-  group_by(variety,CP) %>% 
-  summarise(mean = mean(min), 
-            sd = sd(min),
-            meanl = mean(ifelse(count==5,0,1))*100,
-            sdl = sd(ifelse(count==5,0,1))*100)
-
-
-
-```
-
-
-# Slide 5: Raw data with intervals plotted on top
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-
-ggplot(mod, aes(x=CP)) + 
-  geom_line(aes(y=mean)) + 
-  geom_ribbon(aes(ymin=mean-sd, ymax=mean+sd), alpha=.1) +
-  geom_line(stat="identity", aes(y=meanl*50), linetype="dashed") +
-  geom_ribbon(aes(ymin=(meanl-sdl)*50, ymax=(meanl+sdl)*50), alpha=.1) + 
-  geom_vline(data=intervals, aes(xintercept = me), color="red") +
-  geom_vline(data=intervals, aes(xintercept = l), linetype="dotted",color="red") +
-  geom_vline(data=intervals, aes(xintercept = h), linetype="dotted",color="red") +
-  scale_y_continuous(sec.axis = sec_axis(~./50, breaks=c(0,100)))+
-  facet_wrap(~variety) +
-  labs(x="Chilling Portions", y="Growing degree hours")
-
-
-```
-
-# Slide 6: Table
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-bb_data$`21d bud break CP` <- paste(round(bb_data$mean)," (",round(bb_data$sd,1),")", sep="")
-bb_model$`Model 97.5% saturation CP`  <- paste(round(bb_model$me)," (",round(bb_model$me - bb_model$l,1),")", sep="")
-bb_data_ch$`21d bud break CH` <- paste(round(bb_data_ch$mean)," (",round(bb_data_ch$sd,1),")", sep="")
-bb_data_cu$`21d bud break CU` <- paste(round(bb_data_cu$mean)," (",round(bb_data_ch$sd,1),")", sep="")
-
-prior1 <- data.frame(variety = c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"), "Prior study" = c(
-    "",
-    "400-450CH",
-    "",
-    "",
-    "700-750CH",
-    "700-750CH",
-    "",
-    "",
-    ""
-  )) 
-
-colnames(prior1)[2] <- "Kuden 2012 (CH)"
-
-
-prior11 <- data.frame(variety = c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"), "Prior study" = c(
-    "",
-    "94CU",
-    "",
-    "",
-    "150CU",
-    "150CU",
-    "",
-    "",
-    ""
-  )) 
-
-colnames(prior11)[2] <- "Kuden 2012 (CU)"
-
-
-
-prior2 <- data.frame(variety = c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"), "Prior study" = c(
-    "",
-    "",
-    "",
-    "900CH",
-    "",
-    "",
-    "",
-    "",
-    ""
-  )) 
-
-colnames(prior2)[2] <- "Alburquerque 2008 (CH)"
-
-
-prior22 <- data.frame(variety = c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"), "Prior study" = c(
-    "",
-    "",
-    "",
-    "900CU",
-    "",
-    "",
-    "",
-    "",
-    ""
-  )) 
-
-colnames(prior22)[2] <- "Alburquerque 2008 (CU)"
-
-
-prior3 <- data.frame(variety = c(
-  "Rainier", 
-  "Lapins",
-  "Sweetheart",
-  "Bing", 
-  "Kordia (C )", 
-  "Kordia (M)", 
-  "Regina",
-  "Skeena", 
-  "Santina"), "Prior study" = c(
-    "45CP",
-    "35CP",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    ""
-  )) 
-
-colnames(prior3)[2] <- "UCD"
-
-st <- merge(bb_data, bb_model) %>% 
-  dplyr::select(variety, `Model 97.5% saturation CP`, `21d bud break CP`) %>%
-  merge(bb_data_ch) %>%
-  dplyr::select(variety, `Model 97.5% saturation CP`, `21d bud break CP`, `21d bud break CH`) %>%
-  merge(bb_data_cu) %>%
-  dplyr::select(variety, `Model 97.5% saturation CP`, `21d bud break CP`, `21d bud break CH`, `21d bud break CU`) %>%
-  merge(prior1) %>%
-    merge(prior11) %>%
-  merge(prior2) %>%
-  merge(prior22) %>%
-  merge(prior3)
-
-colnames(st)[1] <- "Variety"
-  kable(st,booktabs = T)
-
-```
-
-# Cumulative link model
-### Saturation threshold using differential approximation - not represented in prior figures
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-int_diff <- function(vr,post, ci) {
-
-rn <- seq(13,62,length.out=10000)
-imp <- seq(0,4,length.out=10000)
-imp.y <- rep(NA,10000)
-t <- imp
-
-fdiffer <- function(m){
-d1 <- rep(NA,9999)
-d2 <- rep(NA,9998)
-d3 <- rep(NA,9997)
-d4 <- rep(NA,9996)
-d1 <-  m[1:9999] - m[2:10000]
-d2 <-  d1[1:9998] - d1[2:9999]
-d3 <-  d2[1:9997] - d2[2:9998]
-d4 <-  d3[1:9996] - d3[2:9997]
-d1 <- d1/max(abs(d1),na.rm=T)
-d2 <- d2/max(abs(d2),na.rm=T)
-d3 <- d3/max(abs(d3),na.rm=T)
-d4 <- d4/max(abs(d4),na.rm=T)
-
-c1 <- which(d4 == max(d4,na.rm=T))[1]
-c2 <- c1 + which(d4[c1:10000] == min(d4[c1:10000],na.rm=T))[1]
-ap <- c1 + which(abs(d4[c1:c2]) == min(abs(d4[c1:c2]),na.rm=T))[1]
-
-return(list(rn[ap],m,d4))
-}
-
-y <- mean(post$`b_xmid[1]`)
-K <- mean(post$`b_Asym[1]`)
-r <- mean(post$`b_scal[1]`)
-m.y <- K/(1+exp((y-t)/r))
-
-y <- PI(post$`b_xmid[1]`,prob = .95)[1]
-K <- PI(post$`b_Asym[1]`,prob = .95)[1]
-r <- PI(post$`b_scal[1]`,prob = .95)[1]
-m.l <- K/(1+exp((y-t)/r))
-
-y <- PI(post$`b_xmid[1]`,prob = .95)[2]
-K <- PI(post$`b_Asym[1]`,prob = .95)[2]
-r <- PI(post$`b_scal[1]`,prob = .95)[2]
-m.h <- K/(1+exp((y-t)/r))
-
-
-f.m <- fdiffer(m.y)
-f.l <- fdiffer(m.l)
-f.h <- fdiffer(m.h)
-
-gr <- ggplot() + 
-  geom_line(aes(x=rn[1:9996], y=f.m[[3]]),color="brown") +
-  geom_line(aes(x=rn, y=f.m[[2]]/max(f.m[[2]]))) +
-  geom_vline(xintercept = f.m[[1]],color="red") +
-  geom_vline(xintercept = f.l[[1]], linetype="dotted",color="red")+
-  geom_vline(xintercept = f.h[[1]], linetype="dotted",color="red") +
-  labs(x="CP", y="(f(x) and f(4)(x) scaled for reference)") +
-  ggtitle(vr)
-  
-
-return(list(c(f.m[1],f.l[1],f.h[1]),gr))
-}
-
-intervals <- data.frame(vr = c("Ra", "La", "Sw", "Bi", "KoC", "KoM", "Re", "Sk", "Sa"),
-                        me = numeric(9),
-                        l = numeric(9),
-                        h = numeric(9))
-
-post <- posterior_samples(fit.Ra)
-intervals[1,2:4] <- int_diff("Ra",post)[[1]]
-
-post <- posterior_samples(fit.La)
-intervals[2,2:4] <- int_diff("La",post)[[1]]
-
-post <- posterior_samples(fit.Sw)
-intervals[3,2:4] <- int_diff("Sw",post)[[1]]
-
-post <- posterior_samples(fit.Bi)
-intervals[4,2:4] <- int_diff("Bi",post)[[1]]
-
-post <- posterior_samples(fit.KoC)
-intervals[5,2:4] <- int_diff("KoC",post)[[1]]
-
-post <- posterior_samples(fit.KoM)
-intervals[6,2:4] <- int_diff("KoM",post)[[1]]
-
-post <- posterior_samples(fit.Re)
-intervals[7,2:4] <- int_diff("Re",post)[[1]]
-
-post <- posterior_samples(fit.Sk)
-intervals[8,2:4] <- int_diff("Sk",post)[[1]]
-
-post <- posterior_samples(fit.Sa)
-intervals[9,2:4] <- int_diff("Sa",post)[[1]]
-
-ggplot(intervals, aes(x=vr, y=me,ymin=l,ymax=h)) + 
-  geom_pointrange() +
-  labs(x="var", y="CP")+
-  theme_bw()
-```
-
-
-### Saturation threshold using estimate of 97.5% chill effect - individual graphs
-
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
-
-int_diff <- function(vr, post, min_r) {
-  
-  rn <- seq(13,62,length.out=10000)
-  imp <- seq(0,4,length.out=10000)
-  imp.y <- rep(NA,10000)
-  t <- imp
-  
-  y <- mean(post$`b_xmid[1]`)
-  K <- mean(post$`b_Asym[1]`)
-  r <- mean(post$`b_scal[1]`)
-  m.y <- K/(1+exp((y-t)/r))
-  
-  y <- PI(post$`b_xmid[1]`,prob = .95)[1]
-  K <- PI(post$`b_Asym[1]`,prob = .95)[1]
-  r <- PI(post$`b_scal[1]`,prob = .95)[1]
-  m.l <- K/(1+exp((y-t)/r))
-  
-  y <- PI(post$`b_xmid[1]`,prob = .95)[2]
-  K <- PI(post$`b_Asym[1]`,prob = .95)[2]
-  r <- PI(post$`b_scal[1]`,prob = .95)[2]
-  m.h <- K/(1+exp((y-t)/r))
-
-  f.m <- rn[min(which(m.y > min_r*max(m.y)))]
-  f.l <- rn[min(which(m.l > min_r*max(m.l)))]
-  f.h <- rn[min(which(m.h > min_r*max(m.h)))]
-  
-  gr <- ggplot() + 
-    geom_line(aes(x=rn, y=m.y/max(m.y)), size=1.5) +
-    geom_vline(xintercept = f.m,color="red") +
-    geom_vline(xintercept = f.l, linetype="dotted",color="red")+
-    geom_vline(xintercept = f.h, linetype="dotted",color="red") +
-    labs(x="CP", y="") +
-    ggtitle(paste(vr))
-  
-  
-  return(list(c(f.m[1],f.l[1],f.h[1]), gr))
-}
-
-
-
-satp <- .975
-
-intervals <- data.frame(vr = c("Ra", "La", "Sw", "Bi", "KoC", "KoM", "Re", "Sk", "Sa"),
-                        me = numeric(9),
-                        l = numeric(9),
-                        h = numeric(9))
-
-post <- posterior_samples(fit.Ra)
-a <- int_diff("Ra",post, satp)[[2]]
-
-post <- posterior_samples(fit.La)
-b <- int_diff("La",post, satp)[[2]]
-
-post <- posterior_samples(fit.Sw)
-c <- int_diff("Sw",post, satp)[[2]]
-
-post <- posterior_samples(fit.Bi)
-d <- int_diff("Bi",post, satp)[[2]]
-
-post <- posterior_samples(fit.KoC)
-e <- int_diff("KoC",post, satp)[[2]]
-
-post <- posterior_samples(fit.KoM)
-f <- int_diff("KoM",post, satp)[[2]]
-
-post <- posterior_samples(fit.Re)
-g <- int_diff("Re",post, satp)[[2]]
-
-post <- posterior_samples(fit.Sk)
-h <- int_diff("Sk",post, satp)[[2]]
-
-post <- posterior_samples(fit.Sa)
-i <- int_diff("Sa",post, satp)[[2]]
-
-grid.arrange(a,b,c,d,e,f,g,h,i,nrow=3,ncol=3)
-
-```
-
-
-

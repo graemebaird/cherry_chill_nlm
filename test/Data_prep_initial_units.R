@@ -1,27 +1,30 @@
-# Data preparation
-#
-# This code extracts the raw budburst data from the original datafile of observations, 
+require(lme4)
+require(merTools)
+require(openxlsx)
+require(ggplot2)
+require(magrittr)
+require(dplyr)
+require(plotly)
+require(chillR)
 
-# Import and assemble -----------------------------------------------------
 
-
-a1 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a1 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                sheet=4, startRow = 3, cols = 2:35)
-a2 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a2 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=5, startRow = 3, cols = 2:35)
-a3 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a3 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=6, startRow = 3, cols = 2:35)
-a4 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a4 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=7, startRow = 3, cols = 2:35)
-a5 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a5 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=8, startRow = 3, cols = 2:35)
-a6 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a6 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=9, startRow = 3, cols = 2:35)
-a7 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a7 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=10, startRow = 3, cols = 2:35)
-a8 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a8 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=11, startRow = 3, cols = 2:35)
-a9 <- read.xlsx("./datafiles/raw_budburst_data.xlsx",
+a9 <- read.xlsx("MEDICIONES BROTACION G.xlsx",
                 sheet=12, startRow = 3, cols = 2:35)
 
 d <- a1[0,1:19]
@@ -85,8 +88,13 @@ d$prop <- d$both / d$trials
 d$propGT <- d$gtip / d$trials
 d$propLO <- d$full / d$trials
 
+write.csv(d, file="Raw_combined_excel_cunits.csv")
 
-# Summary stats -----------------------------------------------------------
+
+
+
+
+
 
 e <- data.frame(variety=character(0), chill=numeric(0), tree=numeric(0), 
                 week=character(0), sub = integer(0), 
@@ -129,19 +137,16 @@ e$timegap5 <- e$timeto5l - e$timeto5
 e$timegap9 <- e$timeto5l - e$timeto9
 e$ratio <- e$full / e$gtip
 
-write.csv(e, file="./datafiles/Summary_stats.csv")
+write.csv(e, file="Summary_stats_cunits.csv")
 
 
 
 
 
-# Import and assemble weather data ----------------------------------------
 
 
 
-
-
-w1 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+w1 <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=2, startRow = 10, cols = 1:12)
 ## Lapins + Kordia C
 w1 <- w1[-1:-2,]
@@ -151,7 +156,7 @@ w1$hour <- rep(c(14:23,0:13),length.out=length(w1$date))
 
 
 
-w2 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+w2 <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=3, startRow = 10, cols = 1:12)
 ## Bing
 w2 <- w2[-1:-2,]
@@ -160,7 +165,7 @@ w2$date <- as.Date(w2$X1,
 w2$hour <- rep(c(14:23,0:13),length.out=length(w2$date))
 
 
-w3 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+w3 <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=4, startRow = 10, cols = 1:12)
 ## Regina + Skeena + Kordia M
 w3 <- w3[-1:-2,]
@@ -169,7 +174,7 @@ w3$date <- as.Date(w3$X1,
 w3$hour <- rep(c(14:23,0:13),length.out=length(w3$date))
 
 
-w4 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+w4 <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=5, startRow = 10, cols = 1:12)
 ## Santina
 w4 <- w4[-1:-2,]
@@ -178,7 +183,7 @@ w4$date <- as.Date(w4$X1,
 w4$hour <- rep(c(14:23,0:13),length.out=length(w4$date))
 
 
-w5 <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+w5 <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=6, startRow = 10, cols = 1:12)
 ## Sweetheart and Rainier
 w5 <- w5[-1:-2,]
@@ -188,7 +193,7 @@ w5$hour <- rep(c(14:23,0:13),length.out=length(w5$date))
 
 
 
-append_weather_f <- read.xlsx("./datafiles/raw_weather_data.xlsx", sheet=1, startRow=12, 
+append_weather_f <- read.xlsx("PORCIONES DE FRIO.xlsx", sheet=1, startRow=12, 
                                 cols=1:2)
 append_weather_vec <- append_weather_f$`12`[725:(725+746)]
 append_weather_dates <- as.Date(append_weather_f$X1, origin = "1899-12-30")[725:(725+746)]
@@ -196,10 +201,6 @@ append_weather_dates <- as.Date(append_weather_f$X1, origin = "1899-12-30")[725:
 append_weather_vec2 <- append_weather_f$`12`[725:(725+746+334)]
 append_weather_dates2 <- as.Date(append_weather_f$X1, origin = "1899-12-30")[725:(725+746+334)]
 
-
-
-
-# Build index of chill portions and dates ---------------------------------
 
 
 
@@ -269,7 +270,7 @@ td_ind$cp10 <- c(rep(NA,9), 1:5)
 
 
 
-gh <- read.xlsx("./datafiles/raw_weather_data.xlsx",
+gh <- read.xlsx("PORCIONES DE FRIO.xlsx",
                 sheet=7, startRow = 2, cols = 2:3)
 gh$date <- as.Date(gh$Fecha,
                    origin = "1899-12-30")
@@ -278,9 +279,15 @@ gh$hour <- rep(c(0:23),length.out=length(gh$Fecha))
 
 
 
-# Iterate over date index for observations to calculate CP vectors --------
+
+
+
+
+
 d$CP <- NA
 d$GDH <- NA
+
+
 
 
 ## Lapins + Kordia C
@@ -311,7 +318,7 @@ for(j in 1:5){
   tempvec <- tempvec[!is.na(tempvec)]
   ghvec <- (ghvec - 32)/1.8
   
-  cp_trans <- max(Dynamic_Model(tempvec))
+  cp_trans <- max(Utah_Model(tempvec))
   gd_trans <- max(GDH(ghvec))
   
   d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -329,7 +336,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Lapins" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/La_wdf.Rda")
+saveRDS(tempdf, file="La_wdf.Rda")
 
 
 
@@ -360,7 +367,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -378,7 +385,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Kordia (C )" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/KoC_wdf.Rda")
+saveRDS(tempdf, file="KoC_wdf.Rda")
 
 
 
@@ -411,7 +418,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -429,7 +436,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Bing" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Bi_wdf.Rda")
+saveRDS(tempdf, file="Bi_wdf.Rda")
 
 
 ## Regina + Skeena + Kordia M
@@ -461,7 +468,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -479,7 +486,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Regina" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Re_wdf.Rda")
+saveRDS(tempdf, file="Re_wdf.Rda")
 
 
 repvar <- "Skeena"
@@ -508,7 +515,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -526,7 +533,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Skeena" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Sk_wdf.Rda")
+saveRDS(tempdf, file="Sk_wdf.Rda")
 
 
 
@@ -556,7 +563,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -574,7 +581,7 @@ tempdf$time <- c(append_weather_dates,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Kordia (M)" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/KoM_wdf.Rda")
+saveRDS(tempdf, file="KoM_wdf.Rda")
 
 
 
@@ -607,7 +614,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -625,7 +632,7 @@ tempdf$time <- c(append_weather_dates2,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Santina" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Sa_wdf.Rda")
+saveRDS(tempdf, file="Sa_wdf.Rda")
 
 
 ## Sweetheart and Rainier
@@ -658,7 +665,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -676,7 +683,7 @@ tempdf$time <- c(append_weather_dates2,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Sweetheart" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Sw_wdf.Rda")
+saveRDS(tempdf, file="Sw_wdf.Rda")
 
 
 
@@ -706,7 +713,7 @@ for(i in 1:10){
     tempvec <- tempvec[!is.na(tempvec)]
     ghvec <- (ghvec - 32)/1.8
     
-    cp_trans <- max(Dynamic_Model(tempvec))
+    cp_trans <- max(Utah_Model(tempvec))
     gd_trans <- max(GDH(ghvec))
     
     d$CP[d$chill==coll_dates$oCP[i] & d$week==j & d$variety == repvar] <- cp_trans
@@ -724,27 +731,25 @@ tempdf$time <- c(append_weather_dates2,tempdate)
 
 levels(tempdf$variable) <- d$CP[d$variety == "Rainier" & !is.na(d$CP)] %>% unique() %>% round()
 
-saveRDS(tempdf, file="./datafiles/weatherdata/Ra_wdf.Rda")
+saveRDS(tempdf, file="Ra_wdf.Rda")
 
 
-
-scale_sd <- function(testvec){
-  outvec <- (testvec / sd(testvec, na.rm = T))
+cent <- function(testvec){
+  outvec <- ((testvec - mean(testvec, na.rm = T)) / sd(testvec, na.rm = T))
   return(outvec)  
 }
 
-d$CP_c <- scale_sd(d$CP)
-d$GDH_c <- scale_sd(d$GDH)
-d$CP_scale <- sd(d$CP,na.rm=T)
-d$GDH_scale <- sd(d$GDH,na.rm=T)
+d$CP.c <- cent(d$CP)
+d$GDH.c <- cent(d$GDH)
+
+
+
+write.csv(d, file="Raw_combined_excel_cunits.csv")
 
 
 
 
-# Write final file --------------------------------------------------------
-write.csv(d, file="./datafiles/Raw_combined_excel.csv")
 
-# Create and write weather vectors --------------------------------------------------
 
 templist <- list()
 
@@ -776,8 +781,9 @@ for (i in 1:10) tempmat[,i] <- c(templist[[i]], rep(NA, length(templist[[10]]) -
 tempdf <- melt(data.frame(tempmat))
 tempdf$time <- c(append_weather_dates,tempdate)
 
-saveRDS(tempdf, file="./datafiles/weatherdata/All_weather_dataframe.Rda")
+saveRDS(tempdf, file="weatherdf.Rda")
 
   
+
 
 

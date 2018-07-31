@@ -1,0 +1,655 @@
+---
+title: "Cherry cultivar / chilling evaluation - PUCV - analysis report"
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float:
+        collapsed: false
+    header-includes:
+     - \usepackage{amsmath}
+---
+
+
+
+
+```{r, include=FALSE,echo=FALSE}
+require(ggplot2)
+require(magrittr)
+require(dplyr)
+require(reshape)
+require(brms)
+require(cowplot)
+require(plotly)
+require(rethinking)
+
+
+d <- read.csv("../datafiles/Raw_combined_excel.csv")
+e <- read.csv("../datafiles/Summary_stats.csv")
+
+```
+
+## Status at x weeks viz
+### Green-tip - means
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+  d %>% filter(week==1) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propGT), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 1")
+
+
+  d %>% filter(week==2) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propGT), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 2")
+  
+  
+  d %>% filter(week==3) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propGT), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 3)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 3")
+  
+  
+  d %>% filter(week==4) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propGT), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 4)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 4")
+  
+  
+  d %>% filter(week==5) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propGT), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 6)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 6")
+```
+
+### Leaf out - means
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+  d %>% filter(week==1) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propLO), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 1")
+
+
+  d %>% filter(week==2) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propLO), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 2")
+  
+  
+  d %>% filter(week==3) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propLO), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 3)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 3")
+  
+  
+  d %>% filter(week==4) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propLO), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 4)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 4")
+  
+  
+  d %>% filter(week==5) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(propLO), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 6)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 6")
+```
+
+
+
+### All active buds - means
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+  d %>% filter(week==1) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(prop), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 1")
+
+
+  d %>% filter(week==2) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(prop), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 2)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 2")
+  
+  
+  d %>% filter(week==3) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(prop), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 3)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 3")
+  
+  
+  d %>% filter(week==4) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(prop), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 4)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 4")
+  
+  
+  d %>% filter(week==5) %>% 
+  group_by(variety,chill) %>% 
+  summarise(mean = mean(prop), 
+            se = 1.96*sd(prop)/sqrt(12)) %>%
+  ggplot(aes(chill, mean, ymin = mean-se, ymax = mean+se)) +
+  geom_pointrange() +
+  theme_bw() +
+  labs(x="Variety", y="Mean + 95% CI proportion green-tip (week 6)") +
+  facet_wrap(~variety ) +
+  ggtitle("Week 6")
+```
+
+
+
+## Interactive plots
+
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE, error=FALSE, }
+
+
+plsave <- list()
+
+unvar <- unique(d$variety)
+
+semer <- function(x) { return(mean(x)/sqrt(length(x)))}
+
+
+for(i in 1:length(unvar)){
+
+gd <- d[d$variety == unvar[i],] %>% 
+  group_by(chill, GDH) %>% 
+  summarise(prop = mean(prop))
+
+gds <- d[d$variety == unvar[i],] %>% 
+  group_by(chill, GDH) %>% 
+  summarise(prop = semer(prop))
+
+gds$up <- gd$prop+gds$prop
+gds$lo <- gd$prop-gds$prop
+
+
+subd <- d[d$variety == unvar[i],]
+
+te <- ggplot(subd, aes(x = GDH, y = prop, color = as.factor(chill))) +
+  geom_line(data = gd, alpha = .8, size = 2) +
+  geom_line(aes(group = tree_u), alpha = .1) +
+  ggtitle(paste("Variety", unvar[i], " - chill vs proportion active buds"))+ 
+  guides(fill=guide_legend(title="Chill"))
+
+plsave[[i]] <- te
+
+}
+
+
+
+##### Chilling
+
+
+plsave_c <- list()
+
+unvar <- unique(d$chill)
+
+
+for(i in 1:length(unvar)){
+
+gd <- d[d$chill == unvar[i] ,] %>% 
+  group_by(variety, GDH) %>% 
+  summarise(prop = mean(prop))
+
+gds <- d[d$chill == unvar[i] ,] %>% 
+  group_by(variety, GDH) %>% 
+  summarise(prop = semer(prop))
+
+gds$up <- gd$prop+gds$prop
+gds$lo <- gd$prop-gds$prop
+
+
+subd <- d[d$chill == unvar[i],]
+
+te <- ggplot(subd, aes(x = GDH, y = prop, color = as.factor(variety))) +
+  geom_line(data = gd, alpha = .8, size = 2) +
+  geom_line(aes(group = tree_u), alpha = .1) +
+  ggtitle(paste("Chill level", unvar[i], " - variety vs proportion active buds"))+ 
+  guides(fill=guide_legend(title="Variety"))
+
+plsave_c[[i]] <- te
+
+}
+
+
+```
+
+
+### Variety-specific plots
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 1
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 2
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 3
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 4
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 5
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 6
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 7
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 8
+ggplotly(plsave[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 9
+ggplotly(plsave[[i]])
+
+```
+
+
+### Chill-specific plots
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 1
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 2
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 3
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 4
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 5
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 6
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 7
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 8
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 9
+ggplotly(plsave_c[[i]])
+
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+i <- 10
+ggplotly(plsave_c[[i]])
+
+```
+
+
+
+
+## Ordinal plots - CP marginal
+
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+unvar <- unique(d$variety)
+glist <- list()
+
+for (i in 1:length(unvar)) {
+
+tempdf <- melt(d, measure=colnames(d)[c(6:20)])
+
+tempdf <- tempdf[tempdf$variety == unvar[i],]
+
+tempdf$variety <- as.factor(as.character(tempdf$variety))
+
+tempdf$none <- NA
+tempdf$one <- NA
+tempdf$two <- NA
+
+tempdf$none[!is.na(tempdf$value)] <- 0
+tempdf$one[!is.na(tempdf$value)] <- 0
+tempdf$two[!is.na(tempdf$value)] <- 0
+
+tempdf$none[tempdf$value == 0] <- 1
+tempdf$one[tempdf$value == 1]  <- 1
+tempdf$two[tempdf$value == 2]  <- 1
+
+
+gd <- tempdf %>% 
+  group_by(chill, week) %>% 
+  summarise(dormant=mean(none, na.rm=T), green=mean(one, na.rm=T), leaf=mean(two, na.rm=T))
+gd
+
+gdm <- melt(data.frame(gd),id=c("week", "chill"))
+
+gdm$variable <- as.factor(gdm$variable)
+colnames(gdm)[3] <- "Bud_type"
+
+glist[[i]] <- ggplot() + 
+  geom_area(aes(y = value, x = week,
+                fill = Bud_type), data = gdm,
+            stat="identity") + 
+  facet_wrap(~chill, nrow = 2) +
+  ggtitle(unvar[i])
+
+}
+
+glist[[1]]
+
+glist[[2]]
+
+glist[[3]]
+
+glist[[4]]
+
+glist[[5]]
+
+glist[[6]]
+
+glist[[7]]
+
+glist[[8]]
+
+glist[[9]]
+```
+
+## Ordinal plots - GDH marginal
+```{r, echo=FALSE, results=FALSE, message=FALSE, warning=FALSE, error=FALSE}
+
+unvar <- unique(d$variety)
+glist <- list()
+
+for (i in 1:length(unvar)) {
+  
+  tempdf <- melt(d, measure=colnames(d)[c(6:20)])
+  
+  tempdf <- tempdf[tempdf$variety == unvar[i],]
+  
+  tempdf$variety <- as.factor(as.character(tempdf$variety))
+  
+  tempdf$none <- NA
+  tempdf$one <- NA
+  tempdf$two <- NA
+  
+  tempdf$none[!is.na(tempdf$value)] <- 0
+  tempdf$one[!is.na(tempdf$value)] <- 0
+  tempdf$two[!is.na(tempdf$value)] <- 0
+  
+  tempdf$none[tempdf$value == 0] <- 1
+  tempdf$one[tempdf$value == 1]  <- 1
+  tempdf$two[tempdf$value == 2]  <- 1
+  
+  
+  gd <- tempdf %>% 
+    group_by(week, chill) %>% 
+    summarise(dormant=mean(none, na.rm=T), green=mean(one, na.rm=T), leaf=mean(two, na.rm=T))
+  gd
+  
+  gdm <- melt(data.frame(gd),id=c("chill","week"))
+  
+  gdm$variable <- as.factor(gdm$variable)
+  colnames(gdm)[3] <- "Bud_type"
+  
+  glist[[i]] <- ggplot() + 
+    geom_area(aes(y = value, x = chill,
+                  fill = Bud_type), data = gdm,
+              stat="identity") + 
+    facet_wrap(~week, nrow = 2) +
+    ggtitle(unvar[i])
+  
+}
+
+glist[[1]]
+
+glist[[2]]
+
+glist[[3]]
+
+glist[[4]]
+
+glist[[5]]
+
+glist[[6]]
+
+glist[[7]]
+
+glist[[8]]
+
+glist[[9]]
+```
+
+
+
+### Sample weather vectors
+
+Sweetheart
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Sw_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Bing
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Bi_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Kordia C
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/KoC_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Kordia M
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/KoM_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Lapins
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/La_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Rainier
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Ra_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Regina
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Re_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Santina
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Sa_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+
+Skeena
+```{r}
+bar <- readRDS(file="../datafiles/weatherdata/Sk_wdf.Rda")
+levels(bar$variable) <- unique(d$chill)
+
+ggplot(bar, aes(time, value)) + 
+  geom_line() + 
+  facet_grid(variable~.)
+```
+

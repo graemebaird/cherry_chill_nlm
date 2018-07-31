@@ -1,8 +1,25 @@
+# Model fitting
+#
+# This code uses the collated and transformed data produced by `Data_preparation.R` to fit a
+# variety of Stan-based nonlinear models. First, the input data is further manipulated and 
+# filtered to transform the outcome variable and separate the dataset into variety-specific
+# subsets. Then, the `make_standata` function from the `brms` library is used to generate the
+# input vectors and matrices appropriate for the called .stan files, and some additional `dplyr`
+# functions provide vectors for posterior predictive distributions in the MCMC. The final list of 
+# transformed data is pushed to the `stan` function from `rstan`, which performs MCMC sampling. 
+# Model fits are stored in the `modelfits/` directory.
+#
+# Note that the only sampling loop uncommented is the varying-intercept logistic model. If this 
+# file is run as-is, those will be the only files generated.
+
+
 d <- read.csv("./datafiles/Raw_combined_excel.csv")
 
 # GENERATE VARLIST
 
 varlist <- unique(d$variety)
+
+
 # 
 # # FIT PLATEAU/MONOD FUNCTION
 # 
@@ -66,13 +83,14 @@ varlist <- unique(d$variety)
 
 ##
 
+
+
 # FIT 3P LOGISTIC MODIFIED
 
 fit_bayes <- function(model,filename,variety_in) { 
   tempbr <- d %>% 
     mutate(treesub = paste0(chill,sub),
            vartree = as.integer(as.factor(paste0(variety,tree)))) %>%
-    filter(!(tree %in% c(6))) %>%
     melt(measure=c(6:20)) %>%           
     filter(!is.na(CP_c), variety == variety_in) %>%                 
     mutate(value = as.integer(value + 1), 
@@ -100,6 +118,7 @@ fit_bayes <- function(model,filename,variety_in) {
   save(fit.test, file=paste("./modelfits/",variety_in,filename,sep="")) #### Save model fit
   print(variety_in)
 }
+
 
 # FIT/SAVE 3P LOGISTIC MODIFIED LOOP
 

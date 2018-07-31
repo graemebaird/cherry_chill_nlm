@@ -52,11 +52,11 @@ Model diagnostics were performed using the `shinystan` tool, available by runnin
 ### Figure generation
 Figures are generated using the following script files:
 
-`Posterior_contour_plotter_3p.R`, a plot which visualizes the posterior distribution 90% credible intervals for saturation and the alpha-cutpoint ratio.
+`fig7_posterior_violin_plotter.R`, a plot which visualizes the posterior distribution of the NLM saturation threshold and the 50% heuristic threshold.
 
-`Posterior_violin_plotter.R`, a plot which visualizes the posterior distribution of the NLM saturation threshold and the 50% heuristic threshold.
-
-`Raw_posterior_activity_plotter.R`, a plot which visualizes the raw data for bud activity, 50% threshold, and NLM saturation thresholds. 
+`fig8_posterior_contour_plotter_3p.R`, a plot which visualizes the posterior distribution 90% credible intervals for saturation and the alpha-cutpoint ratio.
+ 
+`fig9_raw_posterior_activity_plotter.R`, a plot which visualizes the raw data for bud activity, 50% threshold, and NLM saturation thresholds. 
 
 The main processor bottleneck for these figure-generating function is loading stanfits into memory and extracting samples - posterior predictive samples are already present in these files and do not need to be generated.
 

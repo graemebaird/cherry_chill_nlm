@@ -14,7 +14,7 @@ library(magrittr)
 library(dplyr)
 library(plotly)
 library(chillR)
-library(ggjoy)
+library(ggridges)
 
 # Functions file
 source("./codefiles/Functions.R")

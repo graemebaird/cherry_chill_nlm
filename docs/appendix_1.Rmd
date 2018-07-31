@@ -3,8 +3,8 @@ title: "Model details"
 author: "Graeme Baird"
 date: "5/24/2018"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,6 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 source("../codefiles/Functions.R")
 library(cowplot)
 library(bayesplot)
+library(magrittr)
 ```
 
 ### Underlying model details
@@ -66,6 +67,7 @@ logit_mak_gamma <- function(GDH, CP, alpha, beta, eta){
 ```
 
 Parameter variance within the non-linear component is best visualized by manipulation of individual parameters, as follows. Parameter ranges demonstrated below are appropriate for un-scaled variables and don't necessarily match actual model parameter estimates, which are fit on scaled observations. 
+
 
 #### Changes in alpha determine asymptotic maximum possible growth rate 
 
@@ -158,15 +160,15 @@ text(18000,.1,labels="CP = 15")
 # Model MCMC diagnostics: rhat (convergence) and effective sample ratio (sampling efficiency)
 ```{r}
 
-d <- read.csv("datafiles/Raw_combined_excel.csv")
-varlist <- unique(d$variety)
-varlist <- varlist[varlist != "Kordia (M)"]
+#d <- read.csv("../datafiles/Raw_combined_excel.csv")
+#varlist <- unique(d$variety)
+#varlist <- varlist[varlist != "Kordia (M)"]
 
-for(i in 1:9) {
-load(paste0("./modelfits/",varlist[i],"_plat"))
-rhat(fit.test) %>% plot(title=paste(varlist[i], "rhat"))
-neff_ratio(fit.test) %>% plot(title=paste(varlist[i], "neff"))
-}
+#for(i in 1:9) {
+#load(paste0("../modelfits/",varlist[i],"_3p_updated"))
+#rhat(fit.test) %>% plot(title=paste(varlist[i], "rhat"))
+#neff_ratio(fit.test) %>% plot(title=paste(varlist[i], "neff"))
+#}
 ```
 
 All model fits can additionally be inspected with shinystan via launch_shinystan()

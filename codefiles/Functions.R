@@ -1,3 +1,5 @@
+# These functions support the other codefiles. 
+
 extract.samples <- function (object, n = 10000, clean.names = TRUE, ...)  { ### From McElreath Rethinking
   p <- rstan::extract(object, ...)
   for (i in 1:length(p)) {
