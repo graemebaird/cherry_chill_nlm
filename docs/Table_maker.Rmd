@@ -123,7 +123,7 @@ i = 9
 ```{r}
 for(i in 1:9) {
   
-  load(paste0("modelfits/",varlist[i],"_3p_updated"))
+  load(paste0("../modelfits/",varlist[i],"_3p_updated"))
   fit.test %>% 
     posterior_samples %$% 
     quantile(Ysat*14.3562,c(.025,.5,.975)) %>%

@@ -1,4 +1,6 @@
 # These functions support the other codefiles. 
+#
+#
 
 extract.samples <- function (object, n = 10000, clean.names = TRUE, ...)  { ### From McElreath Rethinking
   p <- rstan::extract(object, ...)
@@ -117,4 +119,42 @@ ysat_quant <- function(filename){
 getmode <- function(v) {
   uniqv <- unique(v)
   uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
+
+logfun <- function(CP, alpha, beta, eta) {
+  lout <- alpha/(1+exp(-beta - CP*eta))
+  return(lout)
+}
+
+logmak <- function(CP, alpha, beta, eta){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logfun(CP[i], alpha, beta, eta)}
+  return(funout)
+}
+
+logit_pred <- function(GDH, CP, alpha, beta, eta) {
+  ak <- c(2,5)
+  phi <- GDH * logfun(CP, alpha, beta, eta);
+  storeframe <- pordlogit(1:3, a=ak, phi=phi)
+  storeframe[3] <- storeframe[3]- storeframe[2]
+  storeframe[2] <- storeframe[2] - storeframe[1]
+  return(1-storeframe[1])
+}
+
+logit_mak <- function(GDH, CP, alpha, beta, eta){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logit_pred(GDH[i], CP, alpha, beta, eta)}
+  return(funout)
+}
+
+logit_pred_gamma <- function(GDH, CP, alpha, beta, eta) {
+  ak <- c(2,5)
+  GDH * logfun(CP, alpha, beta, eta);
+}
+
+logit_mak_gamma <- function(GDH, CP, alpha, beta, eta){
+  funout <- rep(NA,out)
+  for(i in 1:out){funout[i] <- logit_pred_gamma(GDH[i], CP, alpha, beta, eta)}
+  return(funout)
 }

@@ -1,6 +1,9 @@
 # Data preparation
 #
-# This code extracts the raw budburst data from the original datafile of observations, 
+# This code extracts the raw budburst data from the original datafile of observations,
+# calculates summary climate variables (CP and GDH), and creates two files: a full 
+# long-formatted dataset of all 81,000 observations, and a summarized file with 
+# summary statistics for each variety-CP-GDH group.
 
 # Import and assemble -----------------------------------------------------
 

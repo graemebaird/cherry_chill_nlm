@@ -25,12 +25,12 @@ source("./codefiles/Data_preparation.R")
 # Mutate data and prep models (if run as-is, will take a very long time)
 source("./codefiles/Fit_models.R")
 
-# Create Figure X 
+# Create Figure 7 
 source("./codefiles/fig7_posterior_violin_plotter.R")
 
-# Create Figure X 
+# Create Figure 8 
 source("./codefiles/fig8_posterior_contour_plotter_3p.R")
 
-# Create Figure X
+# Create Figure 9
 source("./codefiles/fig9_raw_posterior_activity_plotter.R")
 
