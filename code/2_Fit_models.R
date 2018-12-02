@@ -13,7 +13,7 @@
 # file is run as-is, those will be the only files generated.
 
 
-d <- read.csv("./datafiles/Raw_combined_excel.csv")
+d <- read.csv("./data/Raw_combined_excel.csv")
 
 # GENERATE VARLIST
 
@@ -122,8 +122,12 @@ fit_bayes <- function(model,filename,variety_in) {
 
 # FIT/SAVE 3P LOGISTIC MODIFIED LOOP
 
-for(i in 1:9) fit_bayes("./stanfiles/NL_cerezos_3p_vi_updated.stan","_3p_updated",varlist[i])
+for(i in 1:9) fit_bayes("./stan/NL_cerezos_3p_vi_updated.stan","_3p_updated",varlist[i])
 
 ##
+
+
+
+
 
 
