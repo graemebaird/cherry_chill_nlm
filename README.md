@@ -1,5 +1,5 @@
 ### Introduction
-This collection of R scripts performs the analysis and generates the figures found in Baird et al. 2018 submitted paper "Nonlinear Ordinal Regression to Predict Bud Dormancy Requirements and Bud Burst in Deciduous Trees". 
+This collection of R scripts performs the analysis and generates the figures found in Baird et al. 2018 in-prep paper "Nonlinear Ordinal Regression to Predict Bud Dormancy Requirements and Bud Burst in Deciduous Trees". 
 
 The objectives of this project were to consolidate experimental cherry phenology data, field phenology data, and incubator/field climate data into a single analytical model to:
 
@@ -11,7 +11,7 @@ To accomplish these objectives, here we develop and implement a Bayesian hierarc
 
 Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
 
-Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits which will require disc and memory storage). 
+Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits). 
 
 ### Data cleanup
 To keep data provenance, the steps of data cleanup are described here and can be found in `code/1_Data_preparation.R`. First, the original multi-sheet budburst excel file is collated into a single data frame including all varieties, and some summary statistics are calculated and exported for data exploration purposes. Second, the weather station and HOBO datalogger datafiles are collated into a single data frame and matched with budburst observation dates to provide start-to-end temperature vectors for each budburst observation. These vectors are then converted to Growing Degree Hours and Chilling Portions (using the functions included in the chillR package in R) and matched with each observation for later input into the model. Original twig-based observations are melted into long form so each bud observation is associated with an individual row.
