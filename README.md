@@ -7,9 +7,9 @@ The objectives of this project were to consolidate experimental cherry phenology
 2. Determine cherry varietal differences in spring/summer heat requirements
 3. Formulate a reproducible, extensible approach to modeling bud phenology observations under varying climate regimes
 
-To accomplish these objectives, here we develop and implement a Bayesian hierarchical cumulative-class ordinal model. The model used in our paper is fit using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `data/`. Scripts required to perform all analyses and figure generation are in `code/`. Stan files, located in `stanfiles/`, are executed within R via the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
+To accomplish these objectives, here we develop and implement a Bayesian hierarchical cumulative-class ordinal model. The model used in our paper is fit using Stan, a probabilistic programming language for MCMC-based Bayesian statistical inference. Raw and processed data are in `data/`. Scripts required to perform all analyses and figure generation are in `code/`. Stan files, located in `stan/`, are executed within R via the package `rstan`. Posterior samples and MCMC chain information/diagnostics from fitting these models are stored as stanfit object files in `modelfits/`. Markdown source code used to generate Appendix 1 is in `docs/`.
 
-Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. Required libraries are called in `Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
+Scripts are split into data cleanup, model fitting/sampling, and table/figure generation. Required libraries are called in `0a_Total_runfile.R`. Sourcing this script will perform all tasks required to clean data, fit models, and generate figures/tables. Some work may be required to install all of the relevant packages, especially `rstan`, which will require a linked C++ compiler to function (this is a problem for computers with restricted environments).
 
 Several components of this code are processor-intensive, especially the MCMC sampling, and may take a while to run depending on your computer's processor speed (and will generate large ~400MB model fits). 
 
@@ -19,7 +19,7 @@ To keep data provenance, the steps of data cleanup are described here and can be
 ### Model run/fit
 In our paper, the non-linear cumulative-class ordinal model uses a logistic function to estimate the saturating effects of chilling on bud development. Other forms are plausible, including a logistic model without random effects, a Monod model, and a linear plateau model. They are included here in `stanfiles/` but not discussed in the main paper. 
 
-In the sampling segment of `2_Fit_models.R`, the script iterates through each variety, subsamples the training dataset, reformats the data to match each model's Stan script variable requirements, runs MCMC sampling on the model, and saves the model file to disk. The meaty component of the Stan script is in the `model{}` section, where the non-linear component is calculated and fed into a cumulative link probability mass function `ordered_logistic_lpmf`. Log probability is updated for each sample and each interation in the MCMC chain, i.e.
+In the sampling segment of `2_Fit_models.R`, the script iterates through each variety, subsamples the training dataset, reformats the data to match each model's Stan script variable requirements, runs MCMC sampling on the model, and saves the model file to disk. The meaty component of the Stan script is in the `model{}` section, where the non-linear component is calculated and fed into a cumulative link probability mass function `ordered_logistic_lpmf()`. Log probability is updated for each sample and each interation in the MCMC chain, i.e.
 
 ```
   for (n in 1:N) { 
@@ -32,7 +32,7 @@ In the sampling segment of `2_Fit_models.R`, the script iterates through each va
   } 
 ```
 
-Where `nlp_alpha`, `nlp_beta`, and `nlp_eta` are a global parameters with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation, a function of `alpha` `beta` `eta` heat and chill. Because the `ordered_logistic_lpmf` log probability mass function does not support vector inputs, this script cannot be vectorized, and instead iterates over each row `n` in the data for each iteration in the MCMC run. 
+Where `nlp_alpha`, `nlp_beta`, and `nlp_eta` are a global parameters with varying intercepts per variety-tree-chill-twig observation, and `mu` is the output of the nonlinear heat-chill equation, a function of `alpha` `beta` `eta` heat and chill. Because the `ordered_logistic_lpmf()` log probability mass function does not support vector inputs, this script cannot be vectorized, and instead iterates over each row `n` in the data for each iteration in the MCMC run. 
 
 The posterior predictive checks (Yrep) and posterior saturation points (Ysat) are estimated simultaneously in the MCMC run via the generated quantities block code, iterated over all training datapoints and marginalizing out varying intercepts.
 
