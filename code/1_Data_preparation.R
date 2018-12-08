@@ -7,7 +7,6 @@
 
 # Import and assemble -----------------------------------------------------
 
-
 a1 <- read.xlsx("./data/raw_budburst_data.xlsx",
                sheet=4, startRow = 3, cols = 2:35)
 a2 <- read.xlsx("./data/raw_budburst_data.xlsx",
@@ -72,10 +71,12 @@ colnames(d) <- c("variety", "chill", "tree", "week",
                  "s7", "s8", "s9", "s10", "s11",
                  "s12", "s13", "s14", "s15", "sub")
 
+# Build some quick lambda functions
 countnas <- function(x) return(length(which(!is.na(x))))
 countones <- function(x) return(length(which(x == 1 & !is.na(x))))
 counttwos <- function(x) return(length(which(x == 2 & !is.na(x))))
 
+# Apply these functions to the 
 d$trials <- apply(d[,5:19], 1, countnas)
 d$gtip <- apply(d[,5:19], 1, countones)
 d$full <- apply(d[,5:19], 1, counttwos)
